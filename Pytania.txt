@@ -1,0 +1,20 @@
+1.Do jakiej grupy metod należy algorytm SA?
+2.Jaki jest rozwiązywany problem – rozmiar zadania?
+3. Minimalizacja / maksymalizacja funkcji celu?
+4. Jakie zastosowano algorytmy konstrukcyjne?
+5. Jakie różnice jakości rozwiązań początkowych osiągnięto dla różnych algorytmów?
+6. Jakie konsekwencje w dalszym przebiegu algorytmu ma jakość rozwiązania początkowego?
+7. Jakie zastosowano definicje otoczenia rozwiązania (elementarne) – różne pomysły?
+8. Na czym polega konfiguracja sąsiedztwa/otoczenia rozwiązania?
+9. Ile możliwości definiowania różnych sąsiedztw daje aplikacja?
+10. Na co wpływa aktualna wartość temperatury algorytmu?
+11.Jaką początkową wartość należy przyjąć (od czego to zależy)?
+12. Czym jest współczynnik alfa – jaki to jest schemat chłodzenia?
+13. Jaką wartość alfa należy przyjąć i co od niej zależy?
+14. O czym decyduje temperatura końcowa?
+15. Jakie zastosowano kryteria zakończenia obliczeń?
+16. Kryterium 2 – czym jest błąd bezwzględny i liczba iteracji przypisana do tego kryterium?
+17. Jaka liczba iteracji została wykonana i które kryterium jest decydujące?
+18. O czym decyduje liczba iteracji wykonana przy tej samej temperaturze (długość serii)?
+19.Dla jakich ustawień algorytmu uzyskano najlepsze wyniki?
+
