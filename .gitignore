@@ -33,3 +33,5 @@
 
 .vscode
 cmake-build-debug
+build
+.cache
