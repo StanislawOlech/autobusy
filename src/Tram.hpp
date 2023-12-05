@@ -1,5 +1,8 @@
-#ifndef AUTOBUS_MAIN_HPP
-#define AUTOBUS_MAIN_HPP
+#ifndef AUTOBUS_TRAM_HPP
+#define AUTOBUS_TRAM_HPP
+
+#include <array>
+#include <list>
 
 struct Point2D
 {
@@ -24,4 +27,4 @@ private:
     int size;
 };
 
-#endif //AUTOBUS_MAIN_HPP
+#endif //AUTOBUS_TRAM_HPP
