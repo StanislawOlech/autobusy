@@ -1,21 +1,10 @@
+#pragma once
 #include <array>
 #include <iostream>
 #include <list>
 #include <random>
-
-
-struct Point2D
-{
-    int start;
-    int end;
-};
-
-using Tram = std::list<Point2D>;
-
-
-template <typename T, std::size_t DEPTH, std::size_t COL, std::size_t ROW>
-using Matrix3D = std::array<std::array<std::array<T, ROW>, COL>, DEPTH>;
-
+#include <utility>
+#include "main.hpp"
 
 
 int main()
@@ -116,3 +105,42 @@ int main()
 
     return 0;
 }
+
+Tram::Tram(std::list<Point2D> _path) :path{std::move(_path)}, size{static_cast<int>(_path.size())} {}
+
+Point2D Tram::stop() {
+    if (positon+1<size && !reverse){
+        positon++;
+    }
+    else if (!reverse){
+        reverse == !reverse;
+        positon --;
+    }
+    else if (positon-1>=0 && reverse){
+        positon --;
+    }
+    else {
+        reverse == !reverse;
+        positon ++;
+    }
+
+    return peek_next(-1);
+}
+
+Point2D Tram::peek_next(int index) const {
+    if (positon+index<size && !reverse){
+        return *std::next(path.begin(), positon + index);
+    }
+    else if (!reverse){
+        //positon --;
+    }
+    else if (positon-index>=0 && reverse){
+        return *std::next(path.begin(), positon - index);
+    }
+    else {
+        //positon ++;
+    }
+    return *std::next(path.begin(), reverse? positon - index:  positon + index);
+}
+
+
