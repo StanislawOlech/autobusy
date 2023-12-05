@@ -6,4 +6,4 @@ set(SOURCE_FILES
 
 
 add_library(autobusLib ${SOURCE_FILES})
-target_include_directories(autobusLib PUBLIC ".")
+target_include_directories(autobusLib PUBLIC "")
