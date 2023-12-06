@@ -60,6 +60,7 @@ public:
     auto end() const { return graph_.end(); }
     auto cend() const { return graph_.cend(); }
 
+    // operator<< is optional
     template<Printable V>
     friend std::ostream& operator<<(std::ostream &os, const Graph<V>& graph);
 

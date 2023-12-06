@@ -3,7 +3,7 @@
 #include "Graph.hpp"
 
 
-TEST(GrapTest, GeneralUse)
+TEST(GraphTest, GeneralUse)
 {
     std::vector<Point2D> vec1 = {{1, 2}, {3, 1}, {5, 6}};
     std::vector<Point2D> vec2 = {{9, 0}, {9, 9}};
