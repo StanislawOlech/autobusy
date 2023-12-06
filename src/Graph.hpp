@@ -7,6 +7,14 @@
 #include <span>
 #include <algorithm>
 #include <ostream>
+#include <ranges>
+
+
+template<typename T>
+concept Hashable = requires(T a) { {std::hash<T>{}(a)} -> std::convertible_to<std::size_t>; };
+
+template<typename T>
+concept Printable = requires(std::ostream& os, T a) { os << a; };
 
 
 struct Point2D
@@ -19,9 +27,63 @@ struct Point2D
     friend std::ostream& operator<<(std::ostream &oss, Point2D point);
 };
 
-
 double normL2(Point2D start, Point2D end);
 
+
+template<Hashable T>
+class Graph
+{
+public:
+    using GraphT = std::unordered_map<T, std::vector<T>>;
+
+    Graph() = default;
+    explicit Graph(GraphT graph): graph_{std::move(graph)} {}
+
+
+    const std::vector<T>& GetEdge(T start) const { return graph_.at(start); }
+
+    void AddEdge(T start, T end) { graph_[start].push_back(end); }
+
+    void AddEdge(T start, std::span<T> ends)
+    {
+        graph_[start].insert(graph_[start].end(), ends.begin(), ends.end());
+    }
+
+    void AddEdge(T start, std::initializer_list<T> ends)
+    {
+        graph_[start].insert(graph_[start].end(), ends.begin(), ends.end());
+    }
+
+
+    auto begin() const { return graph_.begin(); }
+    auto cbegin() const { return graph_.cbegin(); }
+    auto end() const { return graph_.end(); }
+    auto cend() const { return graph_.cend(); }
+
+    template<Printable V>
+    friend std::ostream& operator<<(std::ostream &os, const Graph<V>& graph);
+
+private:
+    GraphT graph_{};
+};
+
+
+template <Printable V>
+std::ostream &operator<<(std::ostream &oss, const Graph<V> &graph)
+{
+    oss << "{\n";
+    for (auto [start, vec]: graph)
+    {
+        oss << start << ": {";
+        for (auto end: vec | std::views::take(vec.size() - 1))
+        {
+            oss << end << ", ";
+        }
+        oss << *vec.rbegin() << "},\n";
+    }
+    oss << "}";
+    return oss;
+}
 
 // Required for unordered_map
 template<>
@@ -35,30 +97,5 @@ struct std::hash<Point2D>
     }
 };
 
-
-class Graph
-{
-public:
-    using GraphT = std::unordered_map<Point2D, std::vector<Point2D>>;
-
-    Graph() = default;
-    explicit Graph(GraphT graph): graph_{std::move(graph)} {}
-
-    const std::vector<Point2D>& GetEdge(Point2D start) const { return graph_.at(start); }
-
-    void AddEdge(Point2D start, Point2D end) { graph_[start].push_back(end); }
-    void AddEdge(Point2D start, std::span<Point2D> ends);
-    void AddEdge(Point2D start, std::initializer_list<Point2D> ends);
-
-    auto begin() const { return graph_.begin(); }
-    auto cbegin() const { return graph_.cbegin(); }
-    auto end() const { return graph_.end(); }
-    auto cend() const { return graph_.cend(); }
-
-    friend std::ostream& operator<<(std::ostream &os, const Graph& graph);
-
-private:
-    GraphT graph_{};
-};
 
 #endif //AUTOBUS_GRAPH_HPP
