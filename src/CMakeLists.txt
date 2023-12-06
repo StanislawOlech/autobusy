@@ -2,6 +2,7 @@
 # Add .cpp files
 set(SOURCE_FILES
         Tram.cpp
+        Graph.cpp
         )
 
 
