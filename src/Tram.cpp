@@ -28,13 +28,14 @@ Point2D Tram::peek_next(int index) const {
         return *std::next(path.begin(), positon + index);
     }
     else if (!reverse){
-        //positon --;
+        int pos_after_rev = (size - 1 - (positon + index - (size - 1)));
+        return peek_next(pos_after_rev - positon);
     }
     else if (positon-index>=0 && reverse){
         return *std::next(path.begin(), positon - index);
     }
     else {
-        //positon ++;
+        int pos_after_rev = (0 - (positon - index - 0));
+        return peek_next(pos_after_rev - positon);
     }
-    return *std::next(path.begin(), reverse? positon - index:  positon + index);
 }
