@@ -19,6 +19,9 @@ concept Printable = requires(std::ostream& os, T a) { os << a; };
 
 struct Point2D
 {
+    constexpr Point2D() = default;
+    constexpr Point2D(int x, int y): x{x}, y{y} {}
+
     int x{}, y{};
 
     bool operator==(Point2D other) const { return x == other.x && y == other.y; }
