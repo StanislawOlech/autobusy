@@ -3,6 +3,7 @@
 
 #include <array>
 #include <list>
+#include <stdexcept>
 
 struct Point2D
 {
