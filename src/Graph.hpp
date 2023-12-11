@@ -19,7 +19,7 @@ concept Printable = requires(std::ostream& os, T a) { os << a; };
 
 struct Point2D
 {
-    uint32_t x{}, y{};
+    int x{}, y{};
 
     bool operator==(Point2D other) const { return x == other.x && y == other.y; }
     bool operator!=(Point2D other) const { return !(*this == other); }
@@ -27,7 +27,10 @@ struct Point2D
     friend std::ostream& operator<<(std::ostream &oss, Point2D point);
 };
 
-double normL2(Point2D start, Point2D end);
+constexpr int NormL1(Point2D start, Point2D end)
+{
+    return abs(start.x - end.x) + abs(start.y - end.y);
+}
 
 
 template<Hashable T>
