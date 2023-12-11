@@ -1,15 +1,11 @@
 #ifndef AUTOBUS_TRAM_HPP
 #define AUTOBUS_TRAM_HPP
 
+#include "Graph.hpp"
+
 #include <array>
 #include <list>
 #include <stdexcept>
-
-struct Point2D
-{
-    int start;
-    int end;
-};
 
 
 template <typename T, std::size_t DEPTH, std::size_t COL, std::size_t ROW>
