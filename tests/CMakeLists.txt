@@ -8,7 +8,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 set(TEST_SOURCE_FILES
-    GraphTest.cpp
+        GraphTest.cpp
+        TramTest.cpp
 )
 
 add_executable(unit_tests ${TEST_SOURCE_FILES})
