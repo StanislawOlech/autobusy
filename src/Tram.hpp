@@ -14,14 +14,12 @@ using Matrix3D = std::array<std::array<std::array<T, ROW>, COL>, DEPTH>;
 class Tram{
 public:
     Tram(std::vector<Point2D> _path);
-    Point2D peek_next(int index) const;
+    Point2D peek_next(int index);
     Point2D stop();
-    void turn_back(){reverse = !reverse;};
 private:
     std::vector<Point2D> path;
     bool reverse = false;
     int positon = 0;
-    int size;
 };
 
 #endif //AUTOBUS_TRAM_HPP
