@@ -1,7 +1,7 @@
 #include "Tram.hpp"
 
 
-Tram::Tram(std::list<Point2D> _path) :path{std::move(_path)}, size{static_cast<int>(_path.size())} {}
+Tram::Tram(std::vector<Point2D> _path) :path{std::move(_path)}, size{static_cast<int>(_path.size())} {}
 
 
 Point2D Tram::stop() {

@@ -11,7 +11,8 @@ include(GoogleTest)
 
 
 set(TEST_SOURCE_FILES
-    GraphTest.cpp
+        GraphTest.cpp
+        TramTest.cpp
 )
 
 add_executable(unit_tests ${TEST_SOURCE_FILES})
