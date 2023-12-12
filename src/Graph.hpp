@@ -48,16 +48,24 @@ public:
 
     const std::vector<T>& GetEdge(T start) const { return graph_.at(start); }
 
-    void AddEdge(T start, T end) { graph_[start].push_back(end); }
+    void AddEdge(T start, T end) { graph_[start].push_back(end); graph_[end].push_back(start); }
 
     void AddEdge(T start, std::span<T> ends)
     {
         graph_[start].insert(graph_[start].end(), ends.begin(), ends.end());
+        for (auto end: ends)
+        {
+            AddEdge(end, start);
+        }
     }
 
     void AddEdge(T start, std::initializer_list<T> ends)
     {
         graph_[start].insert(graph_[start].end(), ends.begin(), ends.end());
+        for (auto end: ends)
+        {
+            AddEdge(end, start);
+        }
     }
 
 
@@ -73,6 +81,7 @@ public:
 private:
     GraphT graph_{};
 };
+
 
 
 template <Printable V>
@@ -103,6 +112,5 @@ struct std::hash<Point2D>
         return h1 ^ (h2 << 1);
     }
 };
-
 
 #endif //AUTOBUS_GRAPH_HPP
