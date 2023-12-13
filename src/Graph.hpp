@@ -48,7 +48,8 @@ public:
 
     const std::vector<T>& GetEdge(T start) const { return graph_.at(start); }
 
-    void AddEdge(T start, T end) { graph_[start].push_back(end); graph_[end].push_back(start); }
+    /// Krawędz dodaje się tylko z jednej strony
+    void AddEdge(T start, T end) { graph_[start].push_back(end); }
 
     void AddEdge(T start, std::span<T> ends)
     {
