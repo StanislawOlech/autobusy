@@ -16,8 +16,8 @@ TEST(GraphTest, GeneralUse)
 
     graph.AddEdge({0, 9}, vec2);
 
-    ASSERT_EQ(graph.GetEdge({0, 0}), vec1);
-    ASSERT_EQ(graph.GetEdge({0, 9}), vec2);
+    ASSERT_EQ(*graph.GetEdge({0, 0}), vec1);
+    ASSERT_EQ(*graph.GetEdge({0, 9}), vec2);
 }
 
 TEST(Point2DTest, NormL1)
