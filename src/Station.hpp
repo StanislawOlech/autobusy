@@ -22,19 +22,18 @@ struct Passenger
     uint32_t count{};
 };
 
+bool EqualStartEnd(Passenger passenger1, Passenger passenger2);
 
 /**
  * @class
- * Stacja a pasażerami, przyjmuje funkcję do dodawania nowych pasażerów
+ * Stacja z pasażerami, na początku nie ma żadnych pasażerów
+ * dodawanie pasażerów przez AddPassenger
+ * dzielenie całkowitoliczbowe pozostałych pasażerów przez DividePassenger
  */
 class Station
 {
 public:
-    using AddF = std::function<std::span<Passenger>(Point2D)>;
-    using DeleteF = std::function<uint32_t(void)>; // Dzielnik liczb pozostałych pasażerów
-
-
-    Station(Point2D position, const AddF& add_f, const DeleteF& deleteF);
+    explicit Station(Point2D position);
 
     void DeletePassengers(Point2D dest);
 
@@ -44,19 +43,20 @@ public:
 
     [[nodiscard]] bool HasPassengers(Point2D dest) { return passengers_[dest] != 0; }
 
-    void Update();
+    void DividePassengers(uint32_t divider);
+
+    void AddPassengers(std::span<Passenger> new_passengers);
 
 private:
     Point2D position_;
     std::unordered_map<Point2D, uint32_t> passengers_;
-
-    const AddF& AddPassengers_;
-    const DeleteF& DeletePassengers_;
 };
 
 
 /** @class
  * Struktura pamięta nowych pasażerów w każdej turze dla każdego pasażera
+ * Musi pamiętać czas
+ * Zarządzana przez StationList
  */
 struct PassengerTable
 {
@@ -65,6 +65,8 @@ struct PassengerTable
     explicit PassengerTable(Table3D table): table_{std::move(table)} {}
 
     std::span<Passenger> operator()(Point2D station);
+
+    [[nodiscard]] std::size_t size2D(Point2D station) const { return table_.at(station).size(); }
 
     void UpdateTime() { ++curr_time; }
 
@@ -80,14 +82,14 @@ private:
  */
 class StationList
 {
-    explicit StationList(PassengerTable passengerTable): stations_{}, passengerTable_{std::move(passengerTable)} {}
+public:
 
-    void Create(Point2D position) { stations_.emplace(position, Station(position, passengerTable_, deleteF_)); }
+    explicit StationList(PassengerTable::Table3D passengerTable, uint32_t divider = 2);
+
+    void Create(Point2D position);
 
     bool Has(Point2D position) { return stations_.contains(position); }
     Station& Get(Point2D position)  { return stations_.at(position); }
-
-    void SetDeleter(Station::DeleteF deleteF) { deleteF = deleteF_; }
 
     void Update();
 
@@ -95,8 +97,7 @@ private:
     std::unordered_map<Point2D, Station> stations_;
 
     PassengerTable passengerTable_;
-    Station::DeleteF deleteF_ = [](){ return 2; }; // Dzielnik liczb pozostałych pasażerów
-
+    uint32_t passenger_divider_;
 };
 
 #endif //AUTOBUS_STATION_HPP
