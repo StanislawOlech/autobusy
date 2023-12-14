@@ -9,99 +9,57 @@
 
 int main()
 {
-    constexpr int n = 4;
-    constexpr int m = 4;
+    constexpr int n = 3;
+    constexpr int m = 3;
     constexpr int time = 10;
-    constexpr int tram_capacity = 50;
-
-    // int passengers[n][m][time];
-    Matrix3D<int, n, m, time> passengers;
+    constexpr int tram_amount = 3;
+    constexpr int tram_length = 5; // to eliminate in final product
+    Point2D depot{0, 0};
 
     // Random numbers
     std::random_device rd;
     std::mt19937 generator{rd()};
     std::uniform_int_distribution<> int_distribution{0, 50};
 
-
-    // determinate numbers of passengers
-    for (auto &coll: passengers)
-    {
-        for (auto &row: coll)
-        {
-            for (auto &x: row)
-                x = int_distribution(generator);
+    // generating graph
+    Graph<Point2D> graph{};
+    for (int x = 0; x != n; x++){
+        for (int y = 0; y != m; y++){
+            if (y + 1 < m){
+                graph.AddEdge({x, y}, {x, y + 1});
+            }
+            if (x + 1 < n){
+                graph.AddEdge({x, y}, {x + 1, y});
+            }
         }
     }
 
-    // generate trams
     std::list<Tram> trams;
+    for (int i = 0; i != tram_amount; i++){
 
-    for(int i = 0; i < n; ++i){
-        trams.emplace_back( Tram({{i, 0}, {i, 1}, {i, 2}, {i, 3}}) );
+        Tram tram;
+        tram.add_stop(depot);
+        Point2D last = depot;
+        for (int j = 0; j != tram_length; j ++){
+            auto neighbour = graph.GetEdge(last);
+            if (neighbour.size() == 0){break;}
+            int next = rand() % neighbour.size();
+            last = neighbour[next];
+            tram.add_stop(last);
+        }
+        trams.push_back(tram);
+    }
+
+
+
+
+    for (int t = 0; t != time; t++){
 
     }
 
-    for(int j=0; j < m; ++j){
-        trams.emplace_back( Tram({{0, j}, {1, j}, {2, j}, {3, j}}) );
-    }
 
+    // x = int_distribution(generator);
 
-    // show passengers
-    for(int t=0; t < time; t++){
-
-        for(int i=0; i < n; i++){
-            std::cout << i << " ";
-
-            for(int j=0; j < m; j++)
-                std::cout << passengers[i][j][t] << " ";
-
-            std::cout << "\n";
-        }
-        std::cout << std::endl;
-
-
-        std::list<Tram> new_trams;
-
-        for (auto tram_: trams) {
-            // extract stop
-            auto stop = tram_.begin();
-
-            if (stop == tram_.end()) {
-                continue;
-            }
-
-            tram_.erase(stop);
-            int stop_i = stop->start;
-            int stop_j = stop->end;
-
-            // extract destination
-            auto dest = tram_.begin();
-            if (dest == tram_.end()) {
-                continue;
-            }
-
-            int dest_i = dest->start;
-            int dest_j = dest->end;
-
-            // load passengers
-            auto &curr_passengers = passengers[stop_i][stop_j][t];
-            curr_passengers = (curr_passengers > tram_capacity)? curr_passengers - tram_capacity: 0;
-
-            new_trams.push_back(tram_);
-        }
-        trams = new_trams;
-
-
-        for(int i = 0; i < n; ++i) {
-            std::cout << i << " ";
-
-            for(int j = 0; j < m; ++j) {
-                std::cout << passengers[i][j][t] << " ";
-            }
-            std::cout << "\n";
-        }
-        std::cout << std::endl;
-    }
 
     return 0;
 }

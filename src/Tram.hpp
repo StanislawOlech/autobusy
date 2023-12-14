@@ -13,9 +13,11 @@ using Matrix3D = std::array<std::array<std::array<T, ROW>, COL>, DEPTH>;
 
 class Tram{
 public:
-    Tram(std::vector<Point2D> _path);
+    Tram(std::vector<Point2D> _path) :path{std::move(_path)} {}
+    Tram(){};
     Point2D peek_next(int index);
     Point2D stop();
+    void add_stop(Point2D next_stop){path.push_back(next_stop);}
 private:
     std::vector<Point2D> path;
     bool reverse = false;

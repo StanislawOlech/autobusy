@@ -1,8 +1,6 @@
 #include "Tram.hpp"
 
 
-Tram::Tram(std::vector<Point2D> _path) :path{std::move(_path)} {}
-
 
 Point2D Tram::stop() {
     if (positon+1<path.size() && !reverse){
