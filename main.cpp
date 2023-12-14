@@ -27,34 +27,23 @@ int main()
         for (int y = 0; y != m; y++){
             if (y + 1 < m){
                 graph.AddEdge({x, y}, {x, y + 1});
+                //graph.AddEdge({x, y + 1}, {x, y});
             }
             if (x + 1 < n){
                 graph.AddEdge({x, y}, {x + 1, y});
+                //graph.AddEdge({x + 1, y}, {x, y});
             }
         }
     }
 
-    std::list<Tram> trams;
-    for (int i = 0; i != tram_amount; i++){
-
-        Tram tram;
-        tram.add_stop(depot);
-        Point2D last = depot;
-        for (int j = 0; j != tram_length; j ++){
-            auto neighbour = graph.GetEdge(last);
-            if (neighbour.size() == 0){break;}
-            int next = rand() % neighbour.size();
-            last = neighbour[next];
-            tram.add_stop(last);
-        }
-        trams.push_back(tram);
-    }
-
-
+    std::list<Tram> trams = gen_rand_trams(graph, tram_amount, tram_length, depot);
 
 
     for (int t = 0; t != time; t++){
+        for (auto it = trams.begin(); it != trams.end(); ++it){
+            Tram tram = *it;
 
+        }
     }
 
 

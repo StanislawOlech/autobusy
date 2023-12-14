@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <ostream>
 #include <ranges>
+#include <optional>
 
 
 template<typename T>
@@ -46,7 +47,12 @@ public:
     explicit Graph(GraphT graph): graph_{std::move(graph)} {}
 
 
-    const std::vector<T>& GetEdge(T start) const { return graph_.at(start); }
+    const std::vector<T>* GetEdge(T start) const
+    {
+        if (!graph_.contains(start))
+            return nullptr;
+        return &graph_.at(start);
+    }
 
     /// Krawędz dodaje się tylko z jednej strony
     void AddEdge(T start, T end) { graph_[start].push_back(end); }
