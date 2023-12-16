@@ -48,6 +48,8 @@ public:
 
     void AddPassengers(std::span<Passenger> new_passengers);
 
+    friend std::ostream& operator<<(std::ostream &oss, Station station);
+
 private:
     Point2D position_;
     std::unordered_map<Point2D, uint32_t> passengers_;

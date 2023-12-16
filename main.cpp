@@ -1,5 +1,5 @@
-#include "Tram.hpp"
 #include "Station.hpp"
+#include "Tram.hpp"
 
 #include <array>
 #include <iostream>
@@ -7,52 +7,7 @@
 #include <random>
 #include <utility>
 
-std::tuple<uint32_t, uint32_t>  stop(std::list<Tram>& trams, StationList& stationList, int longest_voyage){
-    uint32_t transported = 0;
-    uint32_t distance    = 0;
 
-    for (auto it = trams.begin(); it != trams.end(); ++it){
-        Tram tram = *it;
-
-        Station curentStat = stationList.Get(tram.stop());
-
-        for (int i = 0; i != longest_voyage; i++){
-            Point2D dest = tram.peek_next(i);
-            uint32_t people_count = curentStat.GetPassengers(dest).count;
-            transported += people_count;
-            distance += people_count * (i + 1);
-            curentStat.DeletePassengers(dest);
-        }
-    }
-    return {transported, distance};
-}
-
-template<Hashable T>
-std::list<Tram> gen_rand_trams(Graph<T> graph, int tram_amount, int tram_length, T depot){
-    std::list<Tram> trams;
-
-    std::random_device rd;
-    std::mt19937 generator{seed};
-
-    for (int i = 0; i != tram_amount; i++){
-
-        Tram tram;
-        tram.add_stop(depot);
-        Point2D last = depot;
-        for (int j = 0; j != tram_length; j ++){
-            auto it = graph.GetEdge(last);
-
-            if (it == nullptr){break;}
-
-            auto neighbour = *it;
-            int next = generator() % neighbour.size();
-            last = neighbour[next];
-            tram.add_stop(last);
-        }
-        trams.push_back(tram);
-    }
-    return trams;
-}
 
 int main()
 {
@@ -61,7 +16,6 @@ int main()
     constexpr int time = 10;
     constexpr int tram_amount = 3;
     constexpr int tram_length = 5; // to eliminate in final product
-    constexpr int longest_voyage = 3;
     Point2D depot{0, 0};
 
 
@@ -85,7 +39,8 @@ int main()
     }
 
     // random trams
-    std::list<Tram> trams = gen_rand_trams(graph, tram_amount, tram_length, depot);
+    TramList trams;
+    trams.gen_rand_trams(graph, tram_amount, tram_length, depot);
 
 
     // objective function params
@@ -99,7 +54,7 @@ int main()
 
         all_passengers += stationList.GenerateRandomPass();
 
-        std::tuple<uint32_t, uint32_t> objective = stop(trams, stationList, longest_voyage);
+        std::tuple<uint32_t, uint32_t> objective = trams.stop(stationList);
 
         // objective function update
         transported += std::get<0>(objective);
@@ -109,8 +64,8 @@ int main()
     }
 
 
-    std::cout << float(transported) / float(all_passengers) << std::endl;
-    std::cout << distance << std::endl;
+    std::cout << float(transported) / float(all_passengers) * 100 << " % passengers transported" <<std::endl;
+    std::cout << distance << " units traveled"<<std::endl;
     // x = int_distribution(generator);
 
 

@@ -44,6 +44,11 @@ void Station::AddPassengers(std::span<Passenger> new_passengers)
 
 }
 
+std::ostream& operator<<(std::ostream& oss, Station station) {
+    oss << station.position_;
+    return oss;
+}
+
 std::span<Passenger> PassengerTable::operator()(Point2D station)
 {
     if (!table_.contains(station))
