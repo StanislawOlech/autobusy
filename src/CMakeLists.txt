@@ -52,6 +52,9 @@ if(NOT imgui_POPULATED)
             ${glfw_SOURCE_DIR}/include)
 
     target_link_libraries(imgui PRIVATE glfw)
+
+    # copy font
+    configure_file(${imgui_SOURCE_DIR}/misc/fonts/Roboto-Medium.ttf  ${CMAKE_BINARY_DIR} COPYONLY)
 endif ()
 
 # ==========================================
