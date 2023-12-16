@@ -22,3 +22,7 @@ add_subdirectory(tests)
 add_executable(autobus main.cpp)
 target_include_directories(autobus PUBLIC autobusLib)
 target_link_libraries(autobus PUBLIC autobusLib)
+
+
+add_executable(autobusGui main_gui.cpp)
+target_link_libraries(autobusGui PUBLIC opengl32 glfw imgui implot)
