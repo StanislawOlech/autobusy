@@ -8,6 +8,7 @@
 #include <optional>
 #include <random>
 #include <unordered_set>
+#define  seed rd()
 
 
 /**

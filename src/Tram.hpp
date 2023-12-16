@@ -21,7 +21,7 @@ public:
 private:
     std::vector<Point2D> path;
     bool reverse = false;
-    int positon = 0;
+    int positon  = 0;
 };
 
 #endif //AUTOBUS_TRAM_HPP
