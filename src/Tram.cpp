@@ -4,6 +4,11 @@
 
 
 Point2D Tram::stop() {
+    /**
+     * Function makes tram travel to next point
+     *
+     * @return Point where the train was before.
+     */
     if (positon+1<path.size() && !reverse){
         positon++;
     }
@@ -23,6 +28,14 @@ Point2D Tram::stop() {
 }
 
 Point2D Tram::peek_next(int index) {
+    /**
+     * Function to see where the tram would be in index time
+     *
+     * The function takes into account if the tram would turn back
+     *
+     * @param index relative time
+     * @return point where the train would be
+     */
     if (positon+index<path.size() && !reverse){
         return *std::next(path.begin(), positon + index);
     }
@@ -47,6 +60,15 @@ Point2D Tram::peek_next(int index) {
 
 
 void TramList::gen_rand_trams(Graph<Point2D> graph, int tram_amount, int tram_length, Point2D depot){
+    /**
+     * Function to random trams
+     *
+     * @param graph graph to see possible connections
+     * @param tram_amount number of trams to generate
+     * @param tram_length length of maximum tram length
+     * @param depot position of depot (depot must be in tram path)
+     *
+     */
     std::random_device rd;
     std::mt19937 generator{seed};
 
@@ -72,6 +94,12 @@ void TramList::gen_rand_trams(Graph<Point2D> graph, int tram_amount, int tram_le
 
 
 std::tuple<uint32_t, uint32_t> TramList::stop(StationList& stationList){
+    /**
+     * Function to determinate number of passengers and update number of people at every stop
+     *
+     * @param stationList list of stations
+     * @return number of transported passengers, total distance traveled
+     */
     uint32_t transported = 0;
     uint32_t distance    = 0;
 
@@ -98,6 +126,15 @@ std::tuple<uint32_t, uint32_t> TramList::stop(StationList& stationList){
 }
 
 std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int traveled, Point2D trans_station, Station orginalStation){
+    /**
+     * Function to determinate number of passangers that will transfer at  trans_station
+     *
+     * @param stationList list of stations
+     * @param traveled distance already traveled
+     * @param trans_station point of transfer
+     * @param orginalStation orginal station
+     * @return number of transported passengers, total distance traveled
+     */
     uint32_t transported = 0;
     uint32_t distance    = 0;
 

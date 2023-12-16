@@ -1,11 +1,8 @@
 #include "Station.hpp"
 #include "Tram.hpp"
 
-#include <array>
 #include <iostream>
-#include <list>
-#include <random>
-#include <utility>
+
 
 
 
@@ -38,7 +35,7 @@ int main()
         }
     }
 
-    // random trams
+    // random trams generation
     TramList trams;
     trams.gen_rand_trams(graph, tram_amount, tram_length, depot);
 
@@ -52,8 +49,10 @@ int main()
     // algorithm
     for (int t = 0; t != time; t++){
 
+        // populating tram stops
         all_passengers += stationList.GenerateRandomPass();
 
+        // packing people on trams and ride them to next stops
         std::tuple<uint32_t, uint32_t> objective = trams.stop(stationList);
 
         // objective function update
@@ -66,8 +65,6 @@ int main()
 
     std::cout << float(transported) / float(all_passengers) * 100 << " % passengers transported" <<std::endl;
     std::cout << distance << " units traveled"<<std::endl;
-    // x = int_distribution(generator);
-
 
     return 0;
 }
