@@ -80,3 +80,31 @@ void StationList::Update()
         station.AddPassengers(passengerTable_(point));
     }
 }
+
+uint32_t StationList::GenerateRandomPass(uint32_t maxPassengers, uint32_t groups) {
+    uint32_t passenger_number = 0;
+    std::vector<Point2D> station_points;
+
+    // retrieve all stations
+    for (const auto& pair : stations_) {
+        station_points.push_back(pair.first);
+    }
+
+    // generate passengers
+    for (auto& pair : stations_) {
+        std::vector<Passenger> new_passengers;
+
+        for(uint32_t n = 0; n != groups; n++){
+            Point2D dest = station_points[rand() % station_points.size()];
+            uint32_t pass = rand() % maxPassengers;
+            passenger_number += pass;
+            Passenger passenger{pair.first, dest, pass};
+
+            new_passengers.push_back(passenger);
+
+        }
+        //TODO ogarnąć dlaczego to nie działa
+        //stations_[pair.first].AddPassengers(new_passengers);
+    }
+    return passenger_number;
+}

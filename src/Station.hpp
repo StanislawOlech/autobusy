@@ -93,6 +93,8 @@ public:
 
     void Update();
 
+    uint32_t GenerateRandomPass(uint32_t maxPassengers = 100, uint32_t groups = 10);
+
 private:
     std::unordered_map<Point2D, Station> stations_;
 

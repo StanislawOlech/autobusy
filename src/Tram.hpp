@@ -24,26 +24,4 @@ private:
     int positon = 0;
 };
 
-
-template<Hashable T>
-std::list<Tram> gen_rand_trams(Graph<T> graph, int tram_amount, int tram_length, T depot){
-    std::list<Tram> trams;
-    for (int i = 0; i != tram_amount; i++){
-
-        Tram tram;
-        tram.add_stop(depot);
-        Point2D last = depot;
-        for (int j = 0; j != tram_length; j ++){
-            auto it = graph.GetEdge(last);
-            if (it == NULL){break;}
-            auto neighbour = *it;
-            int next = rand() % neighbour.size();
-            last = neighbour[next];
-            tram.add_stop(last);
-        }
-        trams.push_back(tram);
-    }
-    return trams;
-}
-
 #endif //AUTOBUS_TRAM_HPP
