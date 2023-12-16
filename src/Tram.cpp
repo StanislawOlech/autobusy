@@ -59,7 +59,7 @@ Point2D Tram::peek_next(int index) {
 }
 
 
-void TramList::gen_rand_trams(Graph<Point2D> graph, int tram_amount, int tram_length, Point2D depot){
+void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot){
     /**
      * Function to random trams
      *
@@ -83,7 +83,7 @@ void TramList::gen_rand_trams(Graph<Point2D> graph, int tram_amount, int tram_le
             if (it == nullptr){break;}
 
             auto neighbour = *it;
-            int next = generator() % neighbour.size();
+            uint32_t next = uint32_t(generator()) % neighbour.size();
             last = neighbour[next];
             tram.add_stop(last);
         }
@@ -160,7 +160,7 @@ std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int
 }
 
 void TramList::update() {
-    for (auto it = trams.begin(); it != trams.end(); ++it) {
-        (*it).stop();
+    for (auto & tram : trams) {
+        tram.stop();
     }
 }

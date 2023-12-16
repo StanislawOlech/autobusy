@@ -1,9 +1,6 @@
 #include "Station.hpp"
 #include "Tram.hpp"
-
 #include <iostream>
-
-
 
 
 int main()
