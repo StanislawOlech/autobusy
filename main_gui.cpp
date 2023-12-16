@@ -46,6 +46,15 @@ int main(int, char**)
     //io.ConfigViewportsNoAutoMerge = true;
     //io.ConfigViewportsNoTaskBarIcon = true;
 
+    ImFontGlyphRangesBuilder builder;
+    builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+    builder.AddText(u8"Zażółć gęślą jaźń");
+    ImVector<ImWchar> ranges;
+    builder.BuildRanges(&ranges);
+
+    io.Fonts->AddFontFromFileTTF("Roboto-Medium.ttf", 14, nullptr, ranges.Data);
+    io.Fonts->Build();
+
     ImGui::StyleColorsDark();
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
@@ -65,11 +74,6 @@ int main(int, char**)
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
 
         // Start the Dear ImGui frame
@@ -79,16 +83,58 @@ int main(int, char**)
 
         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        // if (show_demo_window)
-        //     ImGui::ShowDemoWindow(&show_demo_window);
-
         /// USER CODE
 
+        ImGui::Begin("Okno");
+        ImGui::BeginTabBar("Tabs");
+
+            if (ImGui::BeginTabItem("Algorytm"))
+            {
+                if (ImGui::CollapsingHeader("Stacje"))
+                {
+                    static int vec[2] = {0, 0};
+
+                    ImGui::InputInt2("Position", vec);
+                    if (ImGui::Button(u8"Dodaj nową stację"))
+                        ImGui::Text(u8"Dodano nową stacje");
+
+                    /// Dodaj tabele z zapamiętanymi stacjami
+
+                }
+                if (ImGui::CollapsingHeader("Połączenia stacji"))
+                {
+
+                }
+
+                ImGui::EndTabItem();
+            }
+
+
+            if (ImGui::BeginTabItem("Styl"))
+            {
+                static int color_idx = 0;
+                if (ImGui::Combo("Kolor##Selector", &color_idx, "Ciemny\0Jasny\0"))
+                {
+                    switch (color_idx)
+                    {
+                        default:
+                        case 0: ImGui::StyleColorsDark(); break;
+                        case 1: ImGui::StyleColorsLight(); break;
+                    }
+                }
+                ImGui::EndTabItem();
+            }
+
+        ImGui::EndTabBar();
+        ImGui::End();
+
+
+        /// Most of the sample code is in ImGui::ShowDemoWindow()!
+        /// You can browse its code to learn more about Dear ImGui!
         ImGui::ShowDemoWindow();
         ImPlot::ShowDemoWindow();
 
-        /// ============
+        /// END USER CODE
 
         // Rendering
         ImGui::Render();
@@ -99,9 +145,6 @@ int main(int, char**)
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        // Update and Render additional Platform Windows
-        // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-        //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
             GLFWwindow* backup_current_context = glfwGetCurrentContext();

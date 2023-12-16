@@ -26,3 +26,11 @@ target_link_libraries(autobus PUBLIC autobusLib)
 
 add_executable(autobusGui main_gui.cpp)
 target_link_libraries(autobusGui PUBLIC opengl32 glfw imgui implot)
+
+
+# Allows to omit cast to char* from char8_t on UTF-8 strings C++>=20
+if(MSVC)
+    target_compile_options(autobusGui PRIVATE /Zc:char8_t)
+else()
+    target_compile_options(autobusGui PRIVATE -fno-char8_t)
+endif()
