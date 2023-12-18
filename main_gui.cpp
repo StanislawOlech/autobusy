@@ -4,6 +4,7 @@
 #include "implot.h"
 #include <cstdio>
 
+#include "Graph.hpp"
 #include <GLFW/glfw3.h>
 
 
@@ -26,7 +27,7 @@ int main(int, char**)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "Autobusy", nullptr, nullptr);
 
     if (window == nullptr)
         return EXIT_FAILURE;
@@ -71,6 +72,8 @@ int main(int, char**)
 
     ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
+    std::vector<Point2D> stations = {{0, 0}};
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -96,10 +99,61 @@ int main(int, char**)
 
                     ImGui::InputInt2("Position", vec);
                     if (ImGui::Button(u8"Dodaj nową stację"))
-                        ImGui::Text(u8"Dodano nową stacje");
+                    {
+                        stations.emplace_back(vec[0], vec[1]);
+                    }
 
-                    /// Dodaj tabele z zapamiętanymi stacjami
+                    /// Tabela z zapamiętanymi stacjami
 
+                    static ImGuiTableFlags flags =
+                            ImGuiTableFlags_ScrollY |
+                            ImGuiTableFlags_RowBg |
+                            ImGuiTableFlags_BordersOuter |
+                            ImGuiTableFlags_BordersV |
+                            ImGuiTableFlags_Resizable |
+                            ImGuiTableFlags_Reorderable |
+                            ImGuiTableFlags_Hideable;
+
+                    ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8);
+                    if (ImGui::BeginTable("Station_table", 4, flags, outer_size))
+                    {
+                        ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+                        ImGui::TableSetupColumn("Nr.", ImGuiTableColumnFlags_None);
+                        ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_None);
+                        ImGui::TableSetupColumn("Y", ImGuiTableColumnFlags_None);
+
+                        ImGui::TableHeadersRow();
+
+
+                        ImGuiListClipper clipper;
+                        clipper.Begin((int)stations.size());
+
+                        while (clipper.Step())
+                        {
+                            for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
+                            {
+                                ImGui::PushID(row);
+
+                                ImGui::TableNextRow();
+
+                                ImGui::TableSetColumnIndex(0);
+                                ImGui::Text("%d", row);
+
+                                ImGui::TableSetColumnIndex(1);
+                                ImGui::Text("%d", stations[row].x);
+
+                                ImGui::TableSetColumnIndex(2);
+                                ImGui::Text("%d", stations[row].y);
+
+                                ImGui::TableSetColumnIndex(3);
+                                if (ImGui::SmallButton("Usuń"))
+                                    stations.erase(stations.begin() + row);
+
+                                ImGui::PopID();
+                            }
+                        }
+                        ImGui::EndTable();
+                    }
                 }
                 if (ImGui::CollapsingHeader("Połączenia stacji"))
                 {
