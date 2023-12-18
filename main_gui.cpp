@@ -6,6 +6,7 @@
 
 #include "Graph.hpp"
 #include <GLFW/glfw3.h>
+#include "gui.hpp"
 
 
 static void glfw_error_callback(int error, const char* description)
@@ -72,8 +73,7 @@ int main(int, char**)
 
     ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
-    std::vector<Point2D> stations = {{0, 0}};
-
+    GUI gui{};
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -87,106 +87,12 @@ int main(int, char**)
         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
         /// USER CODE
-
-        ImGui::Begin("Okno");
-        ImGui::BeginTabBar("Tabs");
-
-            if (ImGui::BeginTabItem("Algorytm"))
-            {
-                if (ImGui::CollapsingHeader("Stacje"))
-                {
-                    static int vec[2] = {0, 0};
-
-                    ImGui::InputInt2("Position", vec);
-                    if (ImGui::Button(u8"Dodaj nową stację"))
-                    {
-                        stations.emplace_back(vec[0], vec[1]);
-                    }
-
-                    /// Tabela z zapamiętanymi stacjami
-
-                    static ImGuiTableFlags flags =
-                            ImGuiTableFlags_ScrollY |
-                            ImGuiTableFlags_RowBg |
-                            ImGuiTableFlags_BordersOuter |
-                            ImGuiTableFlags_BordersV |
-                            ImGuiTableFlags_Resizable |
-                            ImGuiTableFlags_Reorderable |
-                            ImGuiTableFlags_Hideable;
-
-                    ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8);
-                    if (ImGui::BeginTable("Station_table", 4, flags, outer_size))
-                    {
-                        ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
-                        ImGui::TableSetupColumn("Nr.", ImGuiTableColumnFlags_None);
-                        ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_None);
-                        ImGui::TableSetupColumn("Y", ImGuiTableColumnFlags_None);
-
-                        ImGui::TableHeadersRow();
-
-
-                        ImGuiListClipper clipper;
-                        clipper.Begin((int)stations.size());
-
-                        while (clipper.Step())
-                        {
-                            for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++)
-                            {
-                                ImGui::PushID(row);
-
-                                ImGui::TableNextRow();
-
-                                ImGui::TableSetColumnIndex(0);
-                                ImGui::Text("%d", row);
-
-                                ImGui::TableSetColumnIndex(1);
-                                ImGui::Text("%d", stations[row].x);
-
-                                ImGui::TableSetColumnIndex(2);
-                                ImGui::Text("%d", stations[row].y);
-
-                                ImGui::TableSetColumnIndex(3);
-                                if (ImGui::SmallButton("Usuń"))
-                                    stations.erase(stations.begin() + row);
-
-                                ImGui::PopID();
-                            }
-                        }
-                        ImGui::EndTable();
-                    }
-                }
-                if (ImGui::CollapsingHeader("Połączenia stacji"))
-                {
-
-                }
-
-                ImGui::EndTabItem();
-            }
-
-
-            if (ImGui::BeginTabItem("Styl"))
-            {
-                static int color_idx = 0;
-                if (ImGui::Combo("Kolor##Selector", &color_idx, "Ciemny\0Jasny\0"))
-                {
-                    switch (color_idx)
-                    {
-                        default:
-                        case 0: ImGui::StyleColorsDark(); break;
-                        case 1: ImGui::StyleColorsLight(); break;
-                    }
-                }
-                ImGui::EndTabItem();
-            }
-
-        ImGui::EndTabBar();
-        ImGui::End();
-
+        gui.Draw();
 
         /// Most of the sample code is in ImGui::ShowDemoWindow()!
         /// You can browse its code to learn more about Dear ImGui!
-        ImGui::ShowDemoWindow();
-        ImPlot::ShowDemoWindow();
+//        ImGui::ShowDemoWindow();
+//        ImPlot::ShowDemoWindow();
 
         /// END USER CODE
 

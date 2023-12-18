@@ -6,6 +6,10 @@ set(SOURCE_FILES
         Station.cpp
 )
 
+set(GUI_SOURCE_FILES
+        gui.cpp
+)
+
 
 add_library(autobusLib ${SOURCE_FILES})
 target_include_directories(autobusLib PUBLIC "")
@@ -86,3 +90,14 @@ endif ()
 
 
 FetchContent_MakeAvailable(glfw)
+
+add_library(autobusLibGui ${GUI_SOURCE_FILES})
+target_link_libraries(autobusLibGui PUBLIC opengl32 glfw imgui implot autobusLib)
+
+
+# Allows to omit cast to char* from char8_t on UTF-8 strings C++>=20
+if(MSVC)
+    target_compile_options(autobusLibGui PUBLIC /Zc:char8_t)
+else()
+    target_compile_options(autobusLibGui PUBLIC -fno-char8_t)
+endif()
