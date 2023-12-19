@@ -19,6 +19,7 @@ private:
     void DrawAlgorithm();
     void DrawStationList();
     void DrawStationTable();
+    void DrawArguments();
 
     void DrawStyle();
 
@@ -27,6 +28,9 @@ private:
 private:
     std::vector<Point2D> stations_ = {{0, 0}};
     std::vector<uint8_t> connections_{1};
+
+    int iteration_number_ = 1;
+    int autobus_number = 1;
 };
 
 #endif //AUTOBUS_GUI_HPP

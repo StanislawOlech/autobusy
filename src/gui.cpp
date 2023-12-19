@@ -35,6 +35,7 @@ void GUI::Draw()
         ImGui::EndTabItem();
     }
 
+
     ImGui::EndTabBar();
     ImGui::End();
 
@@ -63,6 +64,8 @@ void GUI::DrawAlgorithm()
         DrawStationList();
     if (ImGui::CollapsingHeader("Połączenia stacji"))
         DrawStationTable();
+    if (ImGui::CollapsingHeader(u8"Parametry sterujące"))
+        DrawArguments();
 }
 
 void GUI::DrawPlot()
@@ -199,7 +202,9 @@ void GUI::DrawStationTable()
                "Jest to graf nie skierowany - automatyczne dodawanie krawędzi powrotnej"
                );
 
-    if (ImGui::BeginTable("table_angled_headers", stations_.size() + 1, table_flags))
+    ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeight() * 14);
+
+    if (ImGui::BeginTable("table_angled_headers", stations_.size() + 1, table_flags, outer_size))
     {
         connections_.resize(stations_.size() * stations_.size());
 
@@ -234,5 +239,41 @@ void GUI::DrawStationTable()
             ImGui::PopID();
         }
         ImGui::EndTable();
+    }
+}
+
+void GUI::DrawArguments()
+{
+    if (ImGui::InputInt("Liczba iteracji", &iteration_number_))
+    {
+        if (iteration_number_ <= 0)
+        {
+            iteration_number_ = 1;
+            ImGui::OpenPopup("Uwaga##iteracje");
+        }
+    }
+    if (ImGui::InputInt("Liczba autobusów", &autobus_number))
+    {
+        if (autobus_number <= 0)
+        {
+            autobus_number = 1;
+            ImGui::OpenPopup("Uwaga##autobusy");
+        }
+    }
+
+    // Popups
+    if (ImGui::BeginPopup("Uwaga##iteracje"))
+    {
+        ImGui::Text(u8"Liczba iteracji musi być dodatnia");
+        if (ImGui::Button("Ok"))
+            ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+    }
+    if (ImGui::BeginPopup("Uwaga##autobusy"))
+    {
+        ImGui::Text(u8"Liczba autobusów musi być dodatnia");
+        if (ImGui::Button("Ok"))
+            ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
     }
 }
