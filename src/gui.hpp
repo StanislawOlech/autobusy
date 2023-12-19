@@ -5,6 +5,8 @@
 #include <unordered_set>
 
 
+void HelpMarker(const char* desc);
+
 
 class GUI
 {

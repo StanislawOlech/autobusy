@@ -6,13 +6,34 @@
 #include <charconv>
 
 
+void HelpMarker(const char* desc)
+{
+    ImGui::TextDisabled("(?)");
+    if (ImGui::BeginItemTooltip())
+    {
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
+
 void GUI::Draw()
 {
     ImGui::Begin("Okno");
     ImGui::BeginTabBar("Tabs");
 
-    DrawAlgorithm();
-    DrawStyle();
+    if (ImGui::BeginTabItem("Algorytm"))
+    {
+        DrawAlgorithm();
+        ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("Styl"))
+    {
+        DrawStyle();
+        ImGui::EndTabItem();
+    }
 
     ImGui::EndTabBar();
     ImGui::End();
@@ -24,33 +45,24 @@ void GUI::Draw()
 
 void GUI::DrawStyle()
 {
-    if (ImGui::BeginTabItem("Styl"))
+    static int color_idx = 0;
+    if (ImGui::Combo("Kolor##Selector", &color_idx, "Ciemny\0Jasny\0"))
     {
-        static int color_idx = 0;
-        if (ImGui::Combo("Kolor##Selector", &color_idx, "Ciemny\0Jasny\0"))
+        switch (color_idx)
         {
-            switch (color_idx)
-            {
-                default:
-                case 0: ImGui::StyleColorsDark(); break;
-                case 1: ImGui::StyleColorsLight(); break;
-            }
+            default:
+            case 0: ImGui::StyleColorsDark(); break;
+            case 1: ImGui::StyleColorsLight(); break;
         }
-        ImGui::EndTabItem();
     }
 }
 
 void GUI::DrawAlgorithm()
 {
-    if (ImGui::BeginTabItem("Algorytm"))
-    {
-        if (ImGui::CollapsingHeader("Stacje"))
-            DrawStationList();
-        if (ImGui::CollapsingHeader("Połączenia stacji"))
-            DrawStationTable();
-
-        ImGui::EndTabItem();
-    }
+    if (ImGui::CollapsingHeader("Stacje"))
+        DrawStationList();
+    if (ImGui::CollapsingHeader("Połączenia stacji"))
+        DrawStationTable();
 }
 
 void GUI::DrawPlot()
@@ -161,6 +173,12 @@ void GUI::DrawStationTable()
                                                    ImGuiTableFlags_Hideable |
                                                    ImGuiTableFlags_HighlightHoveredColumn;
 
+    HelpMarker(u8"Dodawanie połączeń między stacjami\n"
+               "rząd - stacja startowa\n"
+               "kolumna - stacja stacja końcowa\n"
+               "Jest to graf nie skierowany - automatyczne dodawanie krawędzi powrotnej"
+               );
+
     if (ImGui::BeginTable("table_angled_headers", stations_.size() + 1, table_flags))
     {
         connections_.resize(stations_.size() * stations_.size());
@@ -182,7 +200,13 @@ void GUI::DrawStationTable()
                 if (ImGui::TableSetColumnIndex(column) && column - 1 != row)
                 {
                     ImGui::PushID(column);
-                    ImGui::Checkbox("", (bool*)&connections_[row * stations_.size() + column]);
+
+                    std::size_t id = row * stations_.size() + column-1;
+
+                    if (row > column - 1)
+                        id = (column-1) * stations_.size() + row;
+
+                    ImGui::Checkbox("", (bool*)&connections_[id]);
                     ImGui::PopID();
                 }
             ImGui::PopID();
