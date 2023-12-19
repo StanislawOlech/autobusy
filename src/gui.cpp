@@ -92,7 +92,7 @@ void GUI::DrawStationList()
 {
     static int vec[2] = {0, 0};
 
-    ImGui::InputInt2("Position", vec);
+    ImGui::InputInt2("Pozycja stacji", vec);
     if (ImGui::Button(u8"Dodaj nową stację"))
     {
         Point2D point2D = {vec[0], vec[1]};
@@ -124,7 +124,7 @@ void GUI::DrawStationList()
     ImVec2 outer_size = ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 8);
     if (ImGui::BeginTable("Station_table", 4, table_flags, outer_size))
     {
-        ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+        ImGui::TableSetupScrollFreeze(1, 1); // Make top row always visible
         ImGui::TableSetupColumn("Nr.", ImGuiTableColumnFlags_None);
         ImGui::TableSetupColumn("X", ImGuiTableColumnFlags_None);
         ImGui::TableSetupColumn("Y", ImGuiTableColumnFlags_None);
@@ -154,8 +154,27 @@ void GUI::DrawStationList()
                 if (row != 0 && ImGui::SmallButton("Usuń"))
                 {
                     stations_.erase(stations_.begin() + row);
-                }
 
+                    // FIXME: przesuń połączenia pomiędzy stacjami gdy zostanie usunięta stacja
+                    connections_ = {};
+
+                    // Nie Działa
+//                    std::vector<uint8_t> new_connections_;
+//                    new_connections_.reserve(connections_.size());
+//
+//                    for (std::size_t y = 0; y < connections_.size(); ++y)
+//                    {
+//                        for (std::size_t x = 0; x < connections_.size(); ++x)
+//                        {
+//                            if (y == row)
+//                                break;
+//                            if (x == row)
+//                                continue;
+//                            new_connections_.push_back(connections_[y * connections_.size() + x]);
+//                        }
+//                    }
+//                    connections_ = new_connections_;
+                }
                 ImGui::PopID();
             }
         }
@@ -169,6 +188,7 @@ void GUI::DrawStationTable()
                                                    ImGuiTableFlags_ScrollX |
                                                    ImGuiTableFlags_ScrollY |
                                                    ImGuiTableFlags_BordersOuter |
+                                                   ImGuiTableFlags_BordersV |
                                                    ImGuiTableFlags_BordersInnerH |
                                                    ImGuiTableFlags_Hideable |
                                                    ImGuiTableFlags_HighlightHoveredColumn;
@@ -182,6 +202,8 @@ void GUI::DrawStationTable()
     if (ImGui::BeginTable("table_angled_headers", stations_.size() + 1, table_flags))
     {
         connections_.resize(stations_.size() * stations_.size());
+
+        ImGui::TableSetupScrollFreeze(1, 1);
 
         ImGui::TableSetupColumn("Stacje", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder);
 
