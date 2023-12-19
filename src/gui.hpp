@@ -12,9 +12,15 @@ public:
 
     void Draw();
 
+
 private:
     void DrawAlgorithm();
+    void DrawStationList();
+    void DrawStationTable();
+
     void DrawStyle();
+
+    void DrawPlot();
 
 private:
     std::vector<Point2D> stations_ = {{0, 0}};
