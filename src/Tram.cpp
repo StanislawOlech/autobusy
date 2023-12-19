@@ -1,6 +1,6 @@
 #include "Tram.hpp"
 //#include <iostream>
-
+#define bad_station {-1000, -1000}
 
 
 Point2D Tram::stop() {
@@ -58,6 +58,19 @@ Point2D Tram::peek_next(int index) {
     }
 }
 
+void Tram::add_stop(Point2D next_stop) {
+    if (path.empty()){path.push_back(next_stop);}
+
+    uint8_t dist = NormL1(next_stop, path[path.size()-1]);
+
+    if (dist == 0){return;}
+
+    for (uint8_t x = 1; x != dist; x++){
+        path.push_back(bad_station);
+    }
+    path.push_back(next_stop);
+}
+
 
 void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot){
     /**
@@ -104,28 +117,30 @@ std::tuple<uint32_t, uint32_t> TramList::stop(StationList& stationList){
     uint32_t distance    = 0;
 
     for (auto tram : trams){
-        Station curentStat = stationList.Get(tram.peek_next(0));
+        Point2D current_point = tram.peek_next(0);
+        if (NormL1(current_point, bad_station) == 0){continue;}
+        Station curentStat = stationList.Get(current_point);
 
         for (int i = 1; i < longest_voyage + 1; i++){
             Point2D dest = tram.peek_next(i);
             uint32_t people_count = curentStat.GetPassengers(dest).count;
             transported += people_count;
             distance += people_count * (i);
-            curentStat.DeletePassengers(dest);
+            stationList.delatePassengers(current_point, dest);
 
             //std::cout << "z dworca: " << tram.peek_next(0) << " zniknelo: " << people_count << " jadacych do: " << dest << std::endl;
 
-
-            std::tuple<uint32_t, uint32_t> objective = this->transfers(stationList, i, dest, curentStat);
+            std::tuple<uint32_t, uint32_t> objective = this->transfers(stationList, i, dest, current_point);
             transported += std::get<0>(objective);
             distance += std::get<1>(objective);
+
         }
     }
     this->update();
     return {transported, distance};
 }
 
-std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int traveled, Point2D trans_station, Station orginalStation){
+std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int traveled, Point2D trans_station, Point2D orginalpoint){
     /**
      * Function to determinate number of passangers that will transfer at  trans_station
      *
@@ -137,6 +152,7 @@ std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int
      */
     uint32_t transported = 0;
     uint32_t distance    = 0;
+    Station orginalStation = stationList.Get(orginalpoint);
 
     for (auto tram : trams){
 
@@ -149,7 +165,7 @@ std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int
                 uint32_t people_count = orginalStation.GetPassengers(dest).count;
                 transported += people_count;
                 distance += people_count * (j);
-                orginalStation.DeletePassengers(dest);
+                stationList.delatePassengers(orginalpoint, dest);
 
                 //std::cout << "z dworca: " << orginalStation << " zniknelo: " << people_count << " jadacych do: " << dest << " przez " << trans_station << std::endl;
 

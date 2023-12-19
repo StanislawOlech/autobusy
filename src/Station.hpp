@@ -93,6 +93,7 @@ public:
 
     bool Has(Point2D position) { return stations_.contains(position); }
     Station& Get(Point2D position)  { return stations_.at(position); }
+    void delatePassengers(Point2D position, Point2D destination)  { stations_.at(position).DeletePassengers(destination); }
 
     void Update();
 

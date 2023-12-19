@@ -70,7 +70,7 @@ StationList::StationList(PassengerTable::Table3D passengerTable, uint32_t divide
 void StationList::Create(Point2D position)
 {
     Station station{position};
-    station.AddPassengers(passengerTable_(position));
+    //station.AddPassengers(passengerTable_(position));
 
     stations_.emplace(position, std::move(station));
 }
@@ -82,7 +82,7 @@ void StationList::Update()
     for (auto &[point, station]: stations_)
     {
         station.DividePassengers(passenger_divider_);
-        station.AddPassengers(passengerTable_(point));
+        //station.AddPassengers(passengerTable_(point));
     }
 }
 
@@ -105,7 +105,7 @@ uint32_t StationList::GenerateRandomPass(uint32_t maxPassengers, uint32_t groups
 
         for(uint32_t n = 0; n != groups; n++){
             Point2D dest = station_points[generator() % station_points.size()];
-            uint32_t pass = generator() % maxPassengers;
+            uint32_t pass = (dest != pair.first)? generator() % maxPassengers: 0;
             passenger_number += pass;
             Passenger passenger{pair.first, dest, pass};
 

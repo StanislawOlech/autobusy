@@ -7,6 +7,7 @@
 #include <list>
 #include <stdexcept>
 #include <random>
+#include <utility>
 #include "Station.hpp"
 #define  seed rd()
 
@@ -17,8 +18,10 @@ public:
     Tram()= default;
     Point2D peek_next(int index);
     Point2D stop();
-    void add_stop(Point2D next_stop){path.push_back(next_stop);}
+    void add_stop(Point2D next_stop);
     void set_start_point(int positon_){positon = positon_;};
+    void set(std::vector<Point2D> new_path) {path = std::move(new_path);};
+    [[nodiscard]] std::vector<Point2D> get() const {return (path);};
 private:
     std::vector<Point2D> path;
     bool reverse = false;
@@ -33,7 +36,7 @@ public:
     std::tuple<uint32_t, uint32_t> stop(StationList& stationList);
 private:
     void update();
-    std::tuple<uint32_t, uint32_t> transfers(StationList& stationList, int traveled, Point2D station, Station orginalStation);
+    std::tuple<uint32_t, uint32_t> transfers(StationList& stationList, int traveled, Point2D station, Point2D orginalpoint);
 
     uint32_t longest_voyage;
     std::list<Tram> trams;
