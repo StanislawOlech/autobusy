@@ -5,10 +5,10 @@
 
 int main()
 {
-    constexpr int n = 2;
-    constexpr int m = 2;
+    constexpr int n = 5;
+    constexpr int m = 5;
     constexpr int time = 10;
-    constexpr int tram_amount = 100;
+    constexpr int tram_amount = 10;
     constexpr int tram_length = 5; // to eliminate in final product
     Point2D depot{0, 0};
 
@@ -52,14 +52,14 @@ int main()
     for (int t = 0; t != time; t++){
 
         // populating tram stops
-        all_passengers += stationList.GenerateRandomPass(10);
+        all_passengers += stationList.GenerateRandomPass();
 
         // packing people on trams and ride them to next stops
         std::tuple<uint32_t, uint32_t> objective = trams.stop(stationList);
 
         // objective function update
         transported += std::get<0>(objective);
-        distance += std::get<1>(objective);
+        distance    += std::get<1>(objective);
 
         stationList.Update();
     }

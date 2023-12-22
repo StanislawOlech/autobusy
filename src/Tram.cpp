@@ -1,5 +1,5 @@
 #include "Tram.hpp"
-//#include <iostream>
+#include <iostream>
 #define bad_station {-1000, -1000}
 
 
@@ -134,6 +134,8 @@ std::tuple<uint32_t, uint32_t> TramList::stop(StationList& stationList){
             transported += std::get<0>(objective);
             distance += std::get<1>(objective);
 
+
+            //std::cout << stationList.Get(current_point).GetPassengers(dest).count;
         }
     }
     this->update();
@@ -152,7 +154,7 @@ std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int
      */
     uint32_t transported = 0;
     uint32_t distance    = 0;
-    Station orginalStation = stationList.Get(orginalpoint);
+
 
     for (auto tram : trams){
 
@@ -161,12 +163,14 @@ std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int
             if (first_point != trans_station){continue;}
 
             for (int j = 1 + i; j < longest_voyage + 1; j++) {
+                Station orginalStation = stationList.Get(orginalpoint);
                 Point2D dest = tram.peek_next(j);
                 uint32_t people_count = orginalStation.GetPassengers(dest).count;
                 transported += people_count;
                 distance += people_count * (j);
                 stationList.delatePassengers(orginalpoint, dest);
 
+                //std::cout << orginalStation.GetPassengers(dest).count << std::endl;
                 //std::cout << "z dworca: " << orginalStation << " zniknelo: " << people_count << " jadacych do: " << dest << " przez " << trans_station << std::endl;
 
             }
