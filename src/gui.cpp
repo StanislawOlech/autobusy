@@ -18,6 +18,32 @@ void HelpMarker(const char* desc)
     }
 }
 
+
+void MakeWarningPopup(const char* name, const char* text)
+{
+    if (ImGui::BeginPopup(name))
+    {
+        ImGui::Text(text);
+        if (ImGui::Button("Ok"))
+            ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+    }
+}
+
+void MakeInputPositive(const char* name, const char* error_text, int *number)
+{
+    if (ImGui::InputInt(name, number))
+    {
+        if (*number <= 0)
+        {
+            *number = 1;
+            ImGui::OpenPopup(name);
+        }
+    }
+    MakeWarningPopup(name, error_text);
+}
+
+
 void GUI::Draw()
 {
     ImGui::Begin("Okno");
@@ -106,13 +132,8 @@ void GUI::DrawStationList()
         else
             stations_.emplace_back(vec[0], vec[1]);
     }
-    if (ImGui::BeginPopup("Uwaga"))
-    {
-        ImGui::Text(u8"Stacja już istnieje");
-        if (ImGui::Button("Ok"))
-            ImGui::CloseCurrentPopup();
-        ImGui::EndPopup();
-    }
+
+    MakeWarningPopup("Uwaga", u8"Stacja już istnieje");
 
     /// Tabela z zapamiętanymi stacjami
     constexpr static ImGuiTableFlags table_flags = ImGuiTableFlags_ScrollY |
@@ -244,36 +265,83 @@ void GUI::DrawStationTable()
 
 void GUI::DrawArguments()
 {
-    if (ImGui::InputInt("Liczba iteracji", &iteration_number_))
-    {
-        if (iteration_number_ <= 0)
-        {
-            iteration_number_ = 1;
-            ImGui::OpenPopup("Uwaga##iteracje");
-        }
-    }
-    if (ImGui::InputInt("Liczba autobusów", &autobus_number))
-    {
-        if (autobus_number <= 0)
-        {
-            autobus_number = 1;
-            ImGui::OpenPopup("Uwaga##autobusy");
-        }
-    }
+    ImGui::PushItemWidth(120);
+    MakeInputPositive(u8"Liczba iteracji", u8"Liczba iteracji musi być dodatnia", &max_iter_);
+    MakeInputPositive(u8"Liczba autobusów", u8"Liczba autbusów musi być dodatnia", &autobus_number_);
 
-    // Popups
-    if (ImGui::BeginPopup("Uwaga##iteracje"))
+    if (ImGui::InputInt(u8"Liczba rozwiązań", &solutions_number_))
     {
-        ImGui::Text(u8"Liczba iteracji musi być dodatnia");
-        if (ImGui::Button("Ok"))
-            ImGui::CloseCurrentPopup();
-        ImGui::EndPopup();
+        if (solutions_number_ <= 0)
+        {
+            solutions_number_ = 1;
+            ImGui::OpenPopup("Liczba rozwiązań##dodatnie");
+        }
+        else if (solutions_number_ < best_number_)
+        {
+            best_number_ = solutions_number_;
+            if (elite_number_ > solutions_number_)
+                elite_number_ = solutions_number_;
+        }
     }
-    if (ImGui::BeginPopup("Uwaga##autobusy"))
+    MakeWarningPopup(u8"Liczba rozwiązań##dodatnie", u8"Liczba najlepszych rozwiązań musi być dodatnia");
+
+    if (ImGui::InputInt("Liczba najlepszych rozwiązań", &best_number_))
     {
-        ImGui::Text(u8"Liczba autobusów musi być dodatnia");
-        if (ImGui::Button("Ok"))
-            ImGui::CloseCurrentPopup();
-        ImGui::EndPopup();
+        if (best_number_ <= 0)
+        {
+            best_number_ = 1;
+            ImGui::OpenPopup("Liczba najlepszych rozwiązań##dodatnie");
+        }
+        else if (best_number_ > solutions_number_)
+        {
+            best_number_ = solutions_number_;
+            ImGui::OpenPopup("Liczba najlepszych rozwiązań##zaduże");
+        }
+        if (elite_number_ > best_number_)
+            elite_number_ = best_number_;
+
     }
+    MakeWarningPopup(u8"Liczba najlepszych rozwiązań##dodatnie", u8"Liczba najlepszych rozwiązań musi być dodatnia");
+    MakeWarningPopup(u8"Liczba najlepszych rozwiązań##zaduże",
+                     u8"Liczba najlepszych rozwiązań nie może być większa od liczby rozwiązań");
+
+    if (ImGui::InputInt("Liczba elitarnych rozwiązań", &elite_number_))
+    {
+        if (elite_number_ <= 0)
+        {
+            elite_number_ = 1;
+            ImGui::OpenPopup("Liczba elitarnych rozwiązań##dodatnie");
+        }
+        else if (best_number_ < elite_number_)
+        {
+            elite_number_ = best_number_;
+            ImGui::OpenPopup("Liczba elitarnych rozwiązań##zaduże");
+        }
+    }
+    MakeWarningPopup(u8"Liczba elitarnych rozwiązań##dodatnie", u8"Liczba elitarnych rozwiązań musi być dodatnia");
+    MakeWarningPopup(u8"Liczba elitarnych rozwiązań##zaduże",
+                     u8"Liczba elitarnych rozwiązań nie może być większa od liczby najlepszych rozwiązań");
+
+    MakeInputPositive(u8"Otoczenie najlepszych rozwiązań",
+                      u8"Otoczenie najlepszych rozwiązań musi być dodatnie", &best_size_);
+
+    if (ImGui::InputInt("Otoczenie elitarnych rozwiązań", &elite_size_))
+    {
+        if (elite_size_ <= 0)
+        {
+            elite_size_ = 1;
+            ImGui::OpenPopup("Otoczenie elitarnych rozwiązań##dodatnie");
+        }
+        else if (elite_size_ <= best_size_)
+        {
+            elite_size_ = best_size_ + 1;
+            ImGui::OpenPopup(u8"Otoczenie elitarnych rozwiązań##zamałe");
+        }
+    }
+    MakeWarningPopup(u8"Otoczenie elitarnych rozwiązań##dodatnie", u8"Otoczenie elitarnych rozwiązań musi być dodatnia");
+    MakeWarningPopup(u8"Otoczenie elitarnych rozwiązań##zamałe",
+                     u8"Otoczenie elitarnych rozwiązań musi być większ od otoczenie najlepszych rozwiązań");
+
+    ImGui::PopItemWidth();
+
 }
