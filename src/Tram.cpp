@@ -72,7 +72,7 @@ void Tram::add_stop(Point2D next_stop) {
 }
 
 
-void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot){
+void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937 generator){
     /**
      * Function to random trams
      *
@@ -82,8 +82,6 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
      * @param depot position of depot (depot must be in tram path)
      *
      */
-    std::random_device rd;
-    std::mt19937 generator{seed};
 
     for (int i = 0; i != tram_amount; i++){
 
@@ -123,7 +121,7 @@ std::tuple<uint32_t, uint32_t> TramList::stop(StationList& stationList){
 
         for (int i = 1; i < longest_voyage + 1; i++){
             Point2D dest = tram.peek_next(i);
-            uint32_t people_count = curentStat.GetPassengers(dest).count;
+            uint32_t people_count = stationList.Get(current_point).GetPassengers(dest).count;
             transported += people_count;
             distance += people_count * (i);
             stationList.delatePassengers(current_point, dest);
@@ -186,16 +184,17 @@ void TramList::update() {
 }
 
 
-std::tuple<uint32_t, uint32_t, uint32_t> execute_path(int time, StationList stationList, TramList trams){
+std::tuple<uint32_t, uint32_t, uint32_t> execute_path(int time, StationList stationList, TramList trams, std::mt19937 generator){
     // objective function params
     uint32_t transported      = 0;
     uint32_t all_passengers   = 0;
     uint32_t distance         = 0;
 
+
     for (int t = 0; t != time; t++){
 
         // populating tram stops
-        all_passengers += stationList.GenerateRandomPass();
+        all_passengers += stationList.GenerateRandomPass(generator);
 
         // packing people on trams and ride them to next stops
         std::tuple<uint32_t, uint32_t> objective = trams.stop(stationList);

@@ -8,8 +8,8 @@
 
 int main()
 {
-    constexpr int n = 5;
-    constexpr int m = 5;
+    constexpr int n = 2;
+    constexpr int m = 1;
     constexpr int time = 10;
     constexpr int tram_amount = 10;
     constexpr int tram_length = 5; // to eliminate in final product
@@ -41,12 +41,17 @@ int main()
         }
     }
 
+    // declare random generator for passengers and initial trams
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
     // random trams generation
     TramList trams;
-    trams.gen_rand_trams(graph, tram_amount, tram_length, depot);
+    trams.gen_rand_trams(graph, tram_amount, tram_length, depot, gen);
+
 
     // objective function params
-    std::tuple<uint32_t, uint32_t, uint32_t> objective = execute_path(time, stationList, trams);
+    std::tuple<uint32_t, uint32_t, uint32_t> objective = execute_path(time, stationList, trams, gen);
     uint32_t transported = std::get<0>(objective);
     uint32_t distance = std::get<1>(objective);
     uint32_t all_passengers = std::get<2>(objective);

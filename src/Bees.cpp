@@ -7,7 +7,7 @@ Bees::Bees(int numScouts, int numRecruits, int maxIterations, int eliteCount, in
 void Bees::initialize() {
     // Initialize scout bees randomly
     for (int i = 0; i < numScouts; ++i) {
-        scouts.push_back({{rand() % n, rand() % m}, 0.0});
+        // generate random scouts
     }
 
     // Initialize other populations (workers, elites) if needed
@@ -58,8 +58,6 @@ void Bees::updateBeeAlgorithm() {
 double Bees::calculateFitness(const Point2D& location) {
     // Calculate the fitness (quality) of a location
     // Example: Fitness is the negative distance from the depot
-    double distance = std::sqrt(std::pow(location.x - depot.x, 2) + std::pow(location.y - depot.y, 2));
-    return -distance;
 }
 
 void Bees::performDanceCommunication() {

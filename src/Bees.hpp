@@ -6,6 +6,7 @@
 #include <cmath>
 #include <iostream>
 #include <random>
+#include "Tram.hpp"
 
 class Bees {
 public:
