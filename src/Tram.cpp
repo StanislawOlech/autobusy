@@ -96,12 +96,12 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
             if (it == nullptr){break;}
 
             auto neighbour = *it;
-            uint32_t next = uint32_t(generator()) % neighbour.size();
+            uint32_t next = int(generator()) % neighbour.size();
             last = neighbour[next];
             tram.add_stop(last);
         }
         trams.push_back(tram);
-        tram.set_start_point(generator() % tram_length);
+        tram.set_start_point(int(generator()) % tram_length);
     }
 }
 
@@ -184,3 +184,5 @@ void TramList::update() {
         tram.stop();
     }
 }
+
+
