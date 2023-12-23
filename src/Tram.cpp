@@ -186,3 +186,27 @@ void TramList::update() {
 }
 
 
+std::tuple<uint32_t, uint32_t, uint32_t> execute_path(int time, StationList stationList, TramList trams){
+    // objective function params
+    uint32_t transported      = 0;
+    uint32_t all_passengers   = 0;
+    uint32_t distance         = 0;
+
+    for (int t = 0; t != time; t++){
+
+        // populating tram stops
+        all_passengers += stationList.GenerateRandomPass();
+
+        // packing people on trams and ride them to next stops
+        std::tuple<uint32_t, uint32_t> objective = trams.stop(stationList);
+
+        // objective function update
+        transported += std::get<0>(objective);
+        distance    += std::get<1>(objective);
+
+        stationList.Update();
+    }
+
+    return {transported, distance, all_passengers};
+}
+

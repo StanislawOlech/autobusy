@@ -42,4 +42,6 @@ private:
     std::list<Tram> trams;
 };
 
+std::tuple<uint32_t, uint32_t, uint32_t> execute_path(int time, StationList stationList, TramList trams);
+
 #endif //AUTOBUS_TRAM_HPP
