@@ -2,17 +2,14 @@
 #include "Tram.hpp"
 #include <iostream>
 #include "Bees.hpp"
+#include "Problem.hpp"
+#include "Settings.hpp"
 
 
 
 
 int main()
 {
-    constexpr int n = 2;
-    constexpr int m = 1;
-    constexpr int time = 10;
-    constexpr int tram_amount = 10;
-    constexpr int tram_length = 5; // to eliminate in final product
     Point2D depot{0, 0};
 
 
@@ -41,24 +38,27 @@ int main()
         }
     }
 
-    // declare random generator for passengers and initial trams
-    std::random_device rd;
-    std::mt19937 gen(rd());
-
     // random trams generation
     TramList trams;
-    trams.gen_rand_trams(graph, tram_amount, tram_length, depot, gen);
+    trams.gen_rand_trams(graph, tram_amount, tram_length, depot);
 
+    TramProblem tramProblem(time_itt, stationList);
 
     // objective function params
-    std::tuple<uint32_t, uint32_t, uint32_t> objective = execute_path(time, stationList, trams, gen);
-    uint32_t transported = std::get<0>(objective);
+    std::tuple<float, uint32_t> objective = tramProblem.run(trams);
+    float transported = std::get<0>(objective);
     uint32_t distance = std::get<1>(objective);
-    uint32_t all_passengers = std::get<2>(objective);
 
 
-    std::cout << float(transported) / float(all_passengers) * 100 << " % passengers transported" <<std::endl;
+
+    std::cout << transported * 100 << " % passengers transported" <<std::endl;
     std::cout << distance << " units traveled"<<std::endl;
+
+    std::random_device bees_seed;
+    std::mt19937 bees_generator(bees_seed());
+    Bees bees(10, 10, 10, 10, 10, tramProblem, bees_generator, graph, depot);
+    bees.run();
+
 
     return 0;
 }

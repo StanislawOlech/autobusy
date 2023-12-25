@@ -5,6 +5,7 @@ set(SOURCE_FILES
         Graph.cpp
         Station.cpp
         Bees.cpp
+        Problem.cpp
         )
 
 

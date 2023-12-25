@@ -7,12 +7,20 @@
 #include <iostream>
 #include <random>
 #include "Tram.hpp"
+#include "Problem.hpp"
+#include "Settings.hpp"
+
+enum criterion{
+    max_transported = 0,
+    max_distance = 1
+};
 
 class Bees {
 public:
-    Bees(int numScouts, int numRecruits, int maxIterations, int eliteCount, int neighborhoodSize);
+    Bees(int numScouts, int numRecruits, int maxIterations, int eliteCount, int neighborhoodSize,
+         TramProblem tramProblem, std::mt19937 generator, Graph<Point2D> graph, Point2D depot);
 
-    // Initialize the bee algorithm
+// Initialize the bee algorithm
     void initialize();
 
     // Perform the bee algorithm
@@ -25,7 +33,7 @@ private:
     void updateBeeAlgorithm();
 
     // Utility methods
-    double calculateFitness(const Point2D& location);
+    float calculateFitness(TramList trams);
     void performDanceCommunication();
 
 private:
@@ -37,7 +45,7 @@ private:
 
     // Represents a bee's location and quality
     struct Bee {
-        Point2D location;
+        TramList trams;
         double quality;
     };
 
@@ -48,6 +56,15 @@ private:
 
     // Random number generator
     std::mt19937_64 rng;
+
+    // Problem
+    TramProblem tramProblem_;
+    criterion problem_criterion;
+
+    Graph<Point2D> graph_;
+    std::mt19937 generator_;
+    Point2D depot_;
+
 };
 
 

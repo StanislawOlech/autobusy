@@ -31,6 +31,7 @@ private:
 class TramList{
 public:
     explicit TramList(uint32_t longest_voyage_=3) :longest_voyage(longest_voyage_){};
+    void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot);
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937 generator);
     std::tuple<uint32_t, uint32_t> stop(StationList& stationList);
 private:
@@ -40,7 +41,5 @@ private:
     uint32_t longest_voyage;
     std::list<Tram> trams;
 };
-
-std::tuple<uint32_t, uint32_t, uint32_t> execute_path(int time, StationList stationList, TramList trams, std::mt19937 generator);
 
 #endif //AUTOBUS_TRAM_HPP
