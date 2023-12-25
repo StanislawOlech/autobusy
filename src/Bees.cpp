@@ -14,9 +14,11 @@ Bees::Bees(
 
 void Bees::initialize() {
     // Initialize scout bees randomly
-    for (auto& scout : scouts) {
+    for (int i=0; i != numScouts; i ++) {
         // generate random scouts
-        scout.trams.gen_rand_trams(graph_, tram_amount, tram_length, depot_, generator_);
+        Bee bee;
+        bee.trams.gen_rand_trams(graph_, tram_amount, tram_length, depot_, generator_);
+        scouts.push_back(bee);
     }
 
     // Initialize other populations (workers, elites) if needed
