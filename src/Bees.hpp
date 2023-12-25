@@ -15,13 +15,17 @@ enum criterion{
     max_distance = 1
 };
 
+// Represents a bee's location and quality
+struct Bee {
+    TramList trams;
+    double quality;
+};
+
 class Bees {
 public:
     Bees(int numScouts, int numRecruits, int maxIterations, int eliteCount, int neighborhoodSize,
-         TramProblem tramProblem, std::mt19937 generator, Graph<Point2D> graph, Point2D depot);
-
-// Initialize the bee algorithm
-    void initialize();
+         TramProblem tramProblem, std::mt19937 generator, Graph<Point2D> graph, Point2D depot, TramList& trams,
+         criterion problem_criterion);
 
     // Perform the bee algorithm
     void run();
@@ -36,18 +40,14 @@ private:
     float calculateFitness(TramList trams);
     void performDanceCommunication();
 
+public:
+    Bee best_bee;
 private:
     int numScouts;
     int numRecruits;
     int maxIterations;
     int eliteCount;
     int neighborhoodSize;
-
-    // Represents a bee's location and quality
-    struct Bee {
-        TramList trams;
-        double quality;
-    };
 
     // Bee populations
     std::vector<Bee> scouts;
@@ -59,7 +59,7 @@ private:
 
     // Problem
     TramProblem tramProblem_;
-    criterion problem_criterion;
+    criterion problem_criterion_;
 
     Graph<Point2D> graph_;
     std::mt19937 generator_;

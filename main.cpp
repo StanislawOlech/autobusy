@@ -56,9 +56,9 @@ int main()
 
     std::random_device bees_seed;
     std::mt19937 bees_generator(bees_seed());
-    Bees bees(10, 10, 10, 10, 10, tramProblem, bees_generator, graph, depot);
+    Bees bees(10, 10, 10, 10, 10, tramProblem, bees_generator, graph, depot, trams, max_transported);
     bees.run();
-
+    std::cout << bees.best_bee.quality * 100 << " % passengers transported" <<std::endl;
 
     return 0;
 }

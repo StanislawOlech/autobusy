@@ -5,14 +5,17 @@ Bees::Bees(
           int maxIterations,                    int eliteCount,
           int neighborhoodSize,                 TramProblem tramProblem,
           std::mt19937 generator,               Graph<Point2D> graph,
-          Point2D depot)
+          Point2D depot,                        TramList& trams,
+          criterion problem_criterion)
         : numScouts(numScouts),                 numRecruits(numRecruits),
           maxIterations(maxIterations),         eliteCount(eliteCount),
           neighborhoodSize(neighborhoodSize),   tramProblem_(tramProblem),
           generator_(generator),                graph_(graph),
-          depot_(depot){ this->initialize();}
+          depot_(depot),                        problem_criterion_(problem_criterion){
 
-void Bees::initialize() {
+    best_bee.trams = trams;
+    best_bee.quality = calculateFitness(trams);
+
     // Initialize scout bees randomly
     for (int i=0; i != numScouts; i ++) {
         // generate random scouts
@@ -27,6 +30,10 @@ void Bees::initialize() {
     // Run the initial fitness calculation
     for (auto& scout : scouts) {
         scout.quality = calculateFitness(scout.trams);
+
+        if (scout.quality > best_bee.quality){
+            best_bee = scout;
+        }
     }
 }
 
@@ -70,7 +77,7 @@ float Bees::calculateFitness(TramList trams) {
     // Calculate the fitness (quality) of a Trams
     std::tuple<float, uint32_t> objective = tramProblem_.run(trams);
 
-    switch (problem_criterion) {
+    switch (problem_criterion_) {
         case max_transported:
             return std::get<0>(objective);
         case max_distance:
