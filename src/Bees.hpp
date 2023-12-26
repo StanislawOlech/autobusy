@@ -15,6 +15,16 @@ enum criterion{
     max_distance = 1
 };
 
+struct AlgorithmParameters
+{
+    int numScouts;
+    int numRecruits;
+    int maxIterations;
+    int eliteCount;
+    int neighborhoodSize;
+};
+
+
 // Represents a bee's location and quality
 class Bee {
 public:
@@ -26,7 +36,7 @@ public:
 
 class Bees {
 public:
-    Bees(int numScouts, int numRecruits, int maxIterations, int eliteCount, int neighborhoodSize,
+    Bees(AlgorithmParameters parameters,
          TramProblem tramProblem, std::mt19937 generator, Graph<Point2D> graph, Point2D depot, TramList& trams,
          criterion problem_criterion);
 
@@ -47,11 +57,7 @@ private:
 public:
     Bee best_bee;
 private:
-    int numScouts;
-    int numRecruits;
-    int maxIterations;
-    int eliteCount;
-    int neighborhoodSize;
+    AlgorithmParameters parameters_;
 
     // Bee populations
     std::vector<Bee> scouts;

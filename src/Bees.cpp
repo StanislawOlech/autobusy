@@ -1,23 +1,19 @@
 #include "Bees.hpp"
 
 Bees::Bees(
-          int numScouts,                        int numRecruits,
-          int maxIterations,                    int eliteCount,
-          int neighborhoodSize,                 TramProblem tramProblem,
+          AlgorithmParameters parameters,       TramProblem tramProblem,
           std::mt19937 generator,               Graph<Point2D> graph,
           Point2D depot,                        TramList& trams,
           criterion problem_criterion)
-        : numScouts(numScouts),                 numRecruits(numRecruits),
-          maxIterations(maxIterations),         eliteCount(eliteCount),
-          neighborhoodSize(neighborhoodSize),   tramProblem_(tramProblem),
-          generator_(generator),                graph_(graph),
-          depot_(depot),                        problem_criterion_(problem_criterion){
+        : tramProblem_(tramProblem),            generator_(generator),
+          graph_(graph),                        depot_(depot),
+          problem_criterion_(problem_criterion){
 
     best_bee.trams = trams;
     best_bee.quality = calculateFitness(trams);
 
     // Initialize scout bees randomly
-    for (int i=0; i != numScouts; i ++) {
+    for (int i=0; i != parameters.numScouts; i ++) {
         // generate random scouts
         Bee bee;
         bee.trams.gen_rand_trams(graph_, tram_amount, tram_length, depot_, generator_);
@@ -37,7 +33,7 @@ Bees::Bees(
 }
 
 void Bees::run() {
-    for (int iteration = 0; iteration < maxIterations; ++iteration) {
+    for (int iteration = 0; iteration < parameters_.maxIterations; ++iteration) {
         // Perform scout bee exploration
         scoutBeesExplore();
 
