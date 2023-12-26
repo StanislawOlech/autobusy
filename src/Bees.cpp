@@ -85,3 +85,22 @@ void Bees::performDanceCommunication() {
     // Logic for dance communication among bees
     // ...
 }
+
+Tram Bees::generate_rand_tram() {
+    Tram tram;
+    tram.add_stop(depot_);
+    Point2D last = depot_;
+    for (int j = 0; j != tram_length; j ++){
+        auto it = graph_.GetEdge(last);
+
+        if (it == nullptr){break;}
+
+        auto neighbour = *it;
+        uint32_t next = int(generator_()) % neighbour.size();
+        last = neighbour[next];
+        tram.add_stop(last);
+    }
+    tram.set_start_point(abs(int(generator_())) % (tram_length));
+    tram.set_direction(bool(generator_() % 1));
+    return tram;
+}

@@ -13,8 +13,9 @@
 
 class Tram{
 public:
-    Tram(std::vector<Point2D> _path) :path{std::move(_path)} {}
+    explicit Tram(std::vector<Point2D> _path) :path{std::move(_path)} {}
     Tram()= default;
+    Tram(Tram const &other) = default;
     Point2D peek_next(int index);
     Point2D stop();
     void add_stop(Point2D next_stop);
@@ -32,6 +33,7 @@ private:
 class TramList{
 public:
     explicit TramList(uint32_t longest_voyage_=3) :longest_voyage(longest_voyage_){};
+    TramList(TramList const &other) = default;
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot);
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937 generator);
     std::tuple<uint32_t, uint32_t> stop(StationList& stationList);

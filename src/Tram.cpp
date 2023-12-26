@@ -73,7 +73,7 @@ void Tram::add_stop(Point2D next_stop) {
 
 
 void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot){
-    std::mt19937 generator(random_tram_seed());
+    std::mt19937 generator(random_tram_seed);
     gen_rand_trams(graph, tram_amount, tram_length, depot, generator);
 }
 
@@ -91,7 +91,6 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
      */
 
     for (int i = 0; i != tram_amount; i++){
-
         Tram tram;
         tram.add_stop(depot);
         Point2D last = depot;
@@ -105,9 +104,9 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
             last = neighbour[next];
             tram.add_stop(last);
         }
+        tram.set_start_point(abs(int(generator())) % (tram_length));
+        tram.set_direction(bool(generator() % 2));
         trams.push_back(tram);
-        tram.set_start_point(int(generator()) % tram_length);
-        tram.set_direction(bool(generator() % 1));
     }
 }
 

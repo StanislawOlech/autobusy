@@ -35,6 +35,7 @@ public:
 
 private:
     // Bee-related methods
+    Tram generate_rand_tram();
     void scoutBeesExplore();
     void recruitWorkerBees();
     void updateBeeAlgorithm();

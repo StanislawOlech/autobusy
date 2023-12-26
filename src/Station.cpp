@@ -112,3 +112,9 @@ uint32_t StationList::GenerateRandomPass(std::mt19937 generator, uint32_t maxPas
     }
     return passenger_number;
 }
+
+void StationList::Clear() {
+    for (auto& pair : stations_){
+        pair.second.Clear();
+    }
+}

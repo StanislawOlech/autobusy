@@ -49,6 +49,8 @@ public:
 
     friend std::ostream& operator<<(std::ostream &oss, Station station);
 
+    void Clear(){passengers_.clear();};
+
 private:
     Point2D position_;
     std::unordered_map<Point2D, uint32_t> passengers_;
@@ -95,6 +97,8 @@ public:
     void delatePassengers(Point2D position, Point2D destination)  { stations_.at(position).DeletePassengers(destination); }
 
     void Update();
+
+    void Clear();
 
     uint32_t GenerateRandomPass(std::mt19937 generator, uint32_t maxPassengers = 100, uint32_t groups = 10);
 

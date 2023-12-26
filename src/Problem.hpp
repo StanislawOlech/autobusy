@@ -8,7 +8,7 @@
 class TramProblem{
 public:
     TramProblem(int time_, StationList& stationList_);
-    std::tuple<float, uint32_t> run(TramList trams);
+    std::tuple<float, uint32_t> run(TramList& trams);
 private:
     int time;
     StationList stationList;
