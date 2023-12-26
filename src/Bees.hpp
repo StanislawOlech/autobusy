@@ -16,9 +16,12 @@ enum criterion{
 };
 
 // Represents a bee's location and quality
-struct Bee {
+class Bee {
+public:
     TramList trams;
     double quality;
+    friend bool operator< (const Bee& c1, const Bee& c2){return c1.quality < c2.quality;};
+    friend bool operator> (const Bee& c1, const Bee& c2){return c1.quality > c2.quality;};
 };
 
 class Bees {

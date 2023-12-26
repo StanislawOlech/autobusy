@@ -24,16 +24,15 @@ Bees::Bees(
         scouts.push_back(bee);
     }
 
-    // Initialize other populations (workers, elites) if needed
-    // ...
-
     // Run the initial fitness calculation
     for (auto& scout : scouts) {
         scout.quality = calculateFitness(scout.trams);
+    }
 
-        if (scout.quality > best_bee.quality){
-            best_bee = scout;
-        }
+    std::sort(scouts.begin(), scouts.end(), std::greater<Bee>());
+
+    if (scouts[0].quality > best_bee.quality){
+        best_bee = scouts[0];
     }
 }
 
@@ -47,9 +46,6 @@ void Bees::run() {
 
         // Update the bee algorithm (e.g., perform dance communication)
         updateBeeAlgorithm();
-
-        // Additional logic if needed
-        // ...
     }
 }
 
