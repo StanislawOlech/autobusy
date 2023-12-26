@@ -86,12 +86,22 @@ void GUI::DrawStyle()
 
 void GUI::DrawAlgorithm()
 {
+    static bool open_passengers = false;
+
     if (ImGui::CollapsingHeader("Stacje"))
         DrawStationList();
     if (ImGui::CollapsingHeader("Połączenia stacji"))
+    {
+        if (ImGui::Button(u8"Lista pasażerów##nowe_okno"))
+            open_passengers = true;
+
         DrawStationTable();
+    }
     if (ImGui::CollapsingHeader(u8"Parametry sterujące"))
         DrawArguments();
+
+    if (open_passengers)
+        DrawPassengers(&open_passengers);
 }
 
 void GUI::DrawPlot()
@@ -344,4 +354,134 @@ void GUI::DrawArguments()
 
     ImGui::PopItemWidth();
 
+}
+
+void GUI::DrawPassengers(bool *open)
+{
+    if (!ImGui::Begin(u8"Lista pasażerów##funkcja", open))
+    {
+        ImGui::End();
+        return;
+    }
+
+    static constexpr ImGuiTableFlags tableFlags = ImGuiTableFlags_BordersOuter |
+                                                  ImGuiTableFlags_Resizable |
+                                                  ImGuiTableFlags_ScrollY;
+
+    static constexpr ImGuiChildFlags childFlags = ImGuiChildFlags_None;
+    static constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_HorizontalScrollbar;
+
+    static int selected_station_id = -1;
+    static int selected_time = -1;
+
+
+    float window_size_x = ImGui::GetContentRegionAvail().x;
+
+    // Table 1
+    {
+        ImGui::BeginChild("Stacje##Child1", ImVec2(window_size_x * 0.25f, 0), childFlags, windowFlags);
+        if (ImGui::BeginTable(u8"Stacje##Tabela", 1, tableFlags))
+        {
+            ImGui::TableSetupScrollFreeze(0, 1);
+            ImGui::TableSetupColumn(u8"Stacja");
+            ImGui::TableHeadersRow();
+
+            for (int i = 0; i < stations_.size(); ++i)
+            {
+                ImGui::PushID(i);
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+
+                char buffer[12];
+                sprintf(buffer, u8"Stacja %u", i);
+                if (ImGui::Selectable(buffer, selected_station_id == i))
+                {
+                    selected_station_id = i;
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndTable();
+        }
+        ImGui::EndChild();
+    }
+
+    ImGui::SameLine();
+
+    // Table 2
+    {
+        ImGui::BeginChild(u8"Czas##Child2", ImVec2(window_size_x * 0.25f, 0), childFlags, windowFlags);
+        if (ImGui::BeginTable(u8"Czas##Tabela", 1, tableFlags))
+        {
+            ImGui::TableSetupScrollFreeze(0, 1);
+            ImGui::TableSetupColumn(u8"Czas");
+            ImGui::TableHeadersRow();
+
+            for (int i = 0; i < table3D[stations_[selected_station_id]].size(); ++i)
+            {
+                ImGui::PushID(i);
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+
+                char buffer[12];
+                sprintf(buffer, u8"Czas %u", i);
+                if (ImGui::Selectable(buffer, selected_time == i))
+                {
+                    selected_time = i;
+                }
+                ImGui::PopID();
+            }
+
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            if (selected_station_id != -1)
+            {
+                if (ImGui::Button(u8"Dodaj czas"))
+                    table3D[stations_[selected_station_id]].emplace_back();
+            }
+
+            ImGui::EndTable();
+        }
+        ImGui::EndChild();
+    }
+
+    ImGui::SameLine();
+
+    // Table 3
+    {
+        ImGui::BeginChild(u8"Pasażerowie##Child3", ImVec2(0, 0), childFlags, windowFlags);
+        if (ImGui::BeginTable(u8"Pasażerowie##Tabela", 1, tableFlags))
+        {
+            ImGui::TableSetupScrollFreeze(0, 1);
+            ImGui::TableSetupColumn(u8"Pasażerówie");
+            ImGui::TableHeadersRow();
+
+            for (int i = 0; i < table3D[stations_[selected_station_id]].size(); ++i)
+            {
+                ImGui::PushID(i);
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+
+                char buffer[12];
+                sprintf(buffer, u8"Czas %u", i);
+                if (ImGui::Selectable(buffer, selected_time == i))
+                {
+                    selected_time = i;
+                }
+                ImGui::PopID();
+            }
+
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            if (selected_station_id != -1)
+            {
+                if (ImGui::Button(u8"Dodaj czas"))
+                    table3D[stations_[selected_station_id]].emplace_back();
+            }
+
+            ImGui::EndTable();
+        }
+        ImGui::EndChild();
+    }
+
+    ImGui::End();
 }

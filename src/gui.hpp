@@ -2,6 +2,8 @@
 #define AUTOBUS_GUI_HPP
 
 #include "Graph.hpp"
+#include "Station.hpp"
+
 #include <unordered_set>
 #include <functional>
 
@@ -15,14 +17,13 @@ void MakeInputPositive(const char* name, const char* error_text, int *number);
 class GUI
 {
 public:
-
     void Draw();
-
 
 private:
     void DrawAlgorithm();
     void DrawStationList();
     void DrawStationTable();
+    void DrawPassengers(bool *open);
     void DrawArguments();
 
     void DrawStyle();
@@ -32,6 +33,8 @@ private:
 private:
     std::vector<Point2D> stations_ = {{0, 0}};
     std::vector<uint8_t> connections_{1};
+
+    PassengerTable::Table3D table3D;
 
     int max_iter_ = 1;
     int autobus_number_ = 1;
