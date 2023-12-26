@@ -374,12 +374,13 @@ void GUI::DrawPassengers(bool *open)
     static int selected_station_id = -1;
     static int selected_time = -1;
 
+    char buffer[16];
 
     float window_size_x = ImGui::GetContentRegionAvail().x;
 
     // Table 1
     {
-        ImGui::BeginChild("Stacje##Child1", ImVec2(window_size_x * 0.25f, 0), childFlags, windowFlags);
+        ImGui::BeginChild("Stacje##Child1", ImVec2(window_size_x * 0.15f, 0), childFlags, windowFlags);
         if (ImGui::BeginTable(u8"Stacje##Tabela", 1, tableFlags))
         {
             ImGui::TableSetupScrollFreeze(0, 1);
@@ -392,11 +393,11 @@ void GUI::DrawPassengers(bool *open)
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
 
-                char buffer[12];
                 sprintf(buffer, u8"Stacja %u", i);
                 if (ImGui::Selectable(buffer, selected_station_id == i))
                 {
                     selected_station_id = i;
+                    selected_time = -1;
                 }
                 ImGui::PopID();
             }
@@ -409,14 +410,14 @@ void GUI::DrawPassengers(bool *open)
 
     // Table 2
     {
-        ImGui::BeginChild(u8"Czas##Child2", ImVec2(window_size_x * 0.25f, 0), childFlags, windowFlags);
+        ImGui::BeginChild(u8"Czas##Child2", ImVec2(window_size_x * 0.15f, 0), childFlags, windowFlags);
         if (ImGui::BeginTable(u8"Czas##Tabela", 1, tableFlags))
         {
             ImGui::TableSetupScrollFreeze(0, 1);
             ImGui::TableSetupColumn(u8"Czas");
             ImGui::TableHeadersRow();
 
-            auto &time_vec = table3D[stations_[selected_station_id]];
+            auto &time_vec = table3D[selected_station_id];
 
             for (int i = 0; i < time_vec.size(); ++i)
             {
@@ -424,7 +425,6 @@ void GUI::DrawPassengers(bool *open)
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
 
-                char buffer[12];
                 sprintf(buffer, u8"Czas %u", i);
                 if (ImGui::Selectable(buffer, selected_time == i))
                 {
@@ -457,57 +457,86 @@ void GUI::DrawPassengers(bool *open)
             ImGui::TableSetupColumn(u8"Pasażerowie");
             ImGui::TableHeadersRow();
 
-            std::vector<std::vector<Passenger>> &time_vec = table3D[stations_[selected_station_id]];
+            std::vector<std::vector<PassengerGui>> &time_vec = table3D[selected_station_id];
 
+            // If time is selected
             if (selected_time != -1)
             {
                 auto &passengers_vec = time_vec[selected_time];
-
-                for (int i = 0; i < passengers_vec.size(); ++i)
-                {
-                    ImGui::PushID(i);
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-
-                    char buffer[12];
-                    sprintf(buffer, u8"Grupa %u", i);
-
-//                    const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" };
-//                    static int item_current_idx = 0;
-//                    if (ImGui::BeginCombo("combo 1", "", 0))
-//                    {
-//                        for (int n = 0; n < stations_.size(); ++n)
-//                        {
-//                            sprintf(buffer, u8"Stacja %u", n);
-//
-//                            const bool is_selected = (item_current_idx == n);
-//                            if (ImGui::Selectable(stat[n], is_selected))
-//                                item_current_idx = n;
-//
-//                            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-//                            if (is_selected)
-//                                ImGui::SetItemDefaultFocus();
-//                        }
-//                        ImGui::EndCombo();
-//                    }
-
-                    ImGui::SameLine();
-                    ImGui::Text("2");
-                    ImGui::SameLine();
-                    ImGui::Text("3");
-
-                    ImGui::PopID();
-                }
 
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 if (ImGui::Button(u8"Dodaj grupę pasażerów"))
                     passengers_vec.emplace_back();
+
+
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+
+                // Inner table
+                if (ImGui::BeginTable("Pasażerówie##Dane", 3, tableFlags))
+                {
+                    ImGui::TableSetupScrollFreeze(0, 3);
+                    ImGui::TableSetupColumn(u8"Stacja końcowa");
+                    ImGui::TableSetupColumn(u8"Liczba");
+                    ImGui::TableSetupColumn(u8"");
+                    ImGui::TableHeadersRow();
+
+
+                    for (int i = 0; i < passengers_vec.size(); ++i)
+                    {
+                        ImGui::PushID(i);
+                        ImGui::TableNextRow();
+
+                        // Column 1
+                        ImGui::TableSetColumnIndex(0);
+
+                        int &item_current_idx = passengers_vec[i].dest_id;
+
+                        if (item_current_idx != -1) [[likely]]
+                            sprintf(buffer, u8"Stacja %u", item_current_idx);
+                        else
+                            sprintf(buffer, "");
+
+                        // Adding new id fixed some weird issues
+                        ImGui::PushID(passengers_vec.size() * 100 + i);
+                        if (ImGui::BeginCombo("", buffer, 0))
+                        {
+                            for (int n = 0; n < stations_.size(); ++n)
+                            {
+                                sprintf(buffer, u8"Stacja %u", n);
+
+                                const bool is_selected = (item_current_idx == n);
+                                if (ImGui::Selectable(buffer, is_selected))
+                                    item_current_idx = n;
+
+                                if (is_selected)
+                                    ImGui::SetItemDefaultFocus();
+                            }
+                            ImGui::EndCombo();
+                        }
+                        ImGui::PopID();
+
+                        // Column 2
+                        ImGui::TableSetColumnIndex(1);
+                        MakeInputPositive("", u8"Liczba pasażerów musi być dodatnia", &passengers_vec[i].count);
+
+                        // Column 3
+                        ImGui::TableSetColumnIndex(2);
+                        if (ImGui::SmallButton(u8"Wyzeruj"))
+                            passengers_vec[i].count = 0;
+
+
+                        ImGui::PopID();
+                    }
+
+                    ImGui::EndTable(); // Inner Table
+                }
             }
-            ImGui::EndTable();
+            ImGui::EndTable(); // Outer Table
         }
-        ImGui::EndChild();
+        ImGui::EndChild(); // End Table 3
     }
 
-    ImGui::End();
+    ImGui::End(); // End Window
 }
