@@ -9,19 +9,19 @@ Point2D Tram::stop() {
      *
      * @return Point where the train was before.
      */
-    if (positon+1<path.size() && !reverse){
-        positon++;
+    if (position+1<path.size() && !reverse){
+        position++;
     }
     else if (!reverse){
         reverse = !reverse;
-        positon --;
+        position --;
     }
-    else if (positon-1>=0){
-        positon --;
+    else if (position-1>=0){
+        position --;
     }
     else {
         reverse = !reverse;
-        positon ++;
+        position ++;
     }
 
     return peek_next(-1);
@@ -36,23 +36,23 @@ Point2D Tram::peek_next(int index) {
      * @param index relative time
      * @return point where the train would be
      */
-    if (positon+index<path.size() && !reverse){
-        return *std::next(path.begin(), positon + index);
+    if (position+index<path.size() && !reverse){
+        return *std::next(path.begin(), position + index);
     }
     else if (!reverse){
-        int pos_after_rev = (int(path.size()) - 1 - (positon + index - (int(path.size()) - 1)));
+        int pos_after_rev = (int(path.size()) - 1 - (position + index - (int(path.size()) - 1)));
         reverse = ! reverse;
-        Point2D ans = peek_next(pos_after_rev - positon);
+        Point2D ans = peek_next(pos_after_rev - position);
         reverse = ! reverse;
         return ans;
     }
-    else if (positon-index>=0){
-        return *std::next(path.begin(), positon - index);
+    else if (position-index>=0){
+        return *std::next(path.begin(), position - index);
     }
     else {
-        int pos_after_rev = (0 - (positon - index - 0));
+        int pos_after_rev = (0 - (position - index - 0));
         reverse = ! reverse;
-        Point2D ans = peek_next(pos_after_rev - positon);
+        Point2D ans = peek_next(pos_after_rev - position);
         reverse = ! reverse;
         return ans;
     }
@@ -107,6 +107,7 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
         }
         trams.push_back(tram);
         tram.set_start_point(int(generator()) % tram_length);
+        tram.set_direction(bool(generator() % 1));
     }
 }
 

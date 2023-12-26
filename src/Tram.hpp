@@ -18,13 +18,14 @@ public:
     Point2D peek_next(int index);
     Point2D stop();
     void add_stop(Point2D next_stop);
-    void set_start_point(int positon_){positon = positon_;};
-    void set(std::vector<Point2D> new_path) {path = std::move(new_path);};
+    void set_start_point(int position_){position = position_;};
+    void set_path(std::vector<Point2D> new_path) {path = std::move(new_path);};
+    void set_direction(bool reverse_){reverse = reverse_;};
     [[nodiscard]] std::vector<Point2D> get() const {return (path);};
 private:
     std::vector<Point2D> path;
-    bool reverse = false;
-    int positon  = 0;
+    bool reverse  = false;
+    int  position = 0;
 };
 
 
