@@ -35,7 +35,8 @@ private:
 
     void DrawStyle();
 
-    void DrawPlot();
+    void DrawResultPlot();
+    void DrawResultWindow();
 
 private:
     std::vector<Point2D> stations_ = {{0, 0}};

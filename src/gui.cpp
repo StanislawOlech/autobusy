@@ -46,7 +46,7 @@ void MakeInputPositive(const char* name, const char* error_text, int *number)
 
 void GUI::Draw()
 {
-    ImGui::Begin("Okno");
+    ImGui::Begin("Ustawienia");
     ImGui::BeginTabBar("Tabs");
 
     if (ImGui::BeginTabItem("Algorytm"))
@@ -66,7 +66,11 @@ void GUI::Draw()
     ImGui::End();
 
     ImGui::Begin("Wykres");
-    DrawPlot();
+    DrawResultPlot();
+    ImGui::End();
+
+    ImGui::Begin("Wynik");
+    DrawResultWindow();
     ImGui::End();
 }
 
@@ -104,7 +108,7 @@ void GUI::DrawAlgorithm()
         DrawPassengers(&open_passengers);
 }
 
-void GUI::DrawPlot()
+void GUI::DrawResultPlot()
 {
     static float xs1[1001], ys1[1001];
     for (int i = 0; i < 1001; ++i) {
@@ -539,4 +543,30 @@ void GUI::DrawPassengers(bool *open)
     }
 
     ImGui::End(); // End Window
+}
+
+void GUI::DrawResultWindow()
+{
+    if (ImGui::Button("Uruchom algorytm"))
+    {
+        ImGui::OpenPopup("Algorytm");
+    }
+
+    // Center window
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+    if (ImGui::BeginPopupModal("Algorytm", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text(u8"Proszę czekać");
+        ImGui::Text(u8"Dodać uruchomienie algorytmu"); // FIXME
+        ImGui::Separator();
+
+        //static int unused_i = 0;
+        //ImGui::Combo("Combo", &unused_i, "Delete\0Delete harder\0");
+
+        if (ImGui::Button("Przerwij", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+        ImGui::EndPopup();
+    }
+
 }
