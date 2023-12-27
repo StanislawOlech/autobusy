@@ -18,10 +18,16 @@ enum criterion{
 struct AlgorithmParameters
 {
     int numScouts;
-    int numRecruits;
-    int maxIterations;
-    int eliteCount;
+
+    int bestCount;// best_non-elite = best - elite
+    int eliteCount; // elite <= best
+
+    int bestRecruits;
+    int eliteRecruits;
+
     int neighborhoodSize;
+    int maxIterations;
+    int beeLifeTime;
 };
 
 
