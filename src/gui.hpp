@@ -3,9 +3,11 @@
 
 #include "Graph.hpp"
 #include "Station.hpp"
+#include "Bees.hpp"
 
 #include <unordered_set>
 #include <functional>
+
 
 void HelpMarker(const char* desc);
 
@@ -25,6 +27,8 @@ class GUI
 {
 public:
     void Draw();
+
+    [[nodiscard]] AlgorithmParameters Export() const ;
 
 private:
     void DrawAlgorithm();

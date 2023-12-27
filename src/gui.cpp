@@ -570,3 +570,12 @@ void GUI::DrawResultWindow()
     }
 
 }
+
+AlgorithmParameters GUI::Export() const
+{
+    AlgorithmParameters parameters;
+
+    parameters.numScouts = solutions_number_ - elite_number_ - best_number_;
+
+    parameters.numRecruits
+}
