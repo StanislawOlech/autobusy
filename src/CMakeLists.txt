@@ -4,7 +4,9 @@ set(SOURCE_FILES
         Tram.cpp
         Graph.cpp
         Station.cpp
-)
+        Bees.cpp
+        Problem.cpp
+        )
 
 set(GUI_SOURCE_FILES
         gui.cpp

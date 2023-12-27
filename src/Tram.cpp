@@ -1,7 +1,7 @@
 #include "Tram.hpp"
 #include <iostream>
 #define bad_station {-1000, -1000}
-
+#include "Settings.hpp"
 
 Point2D Tram::stop() {
     /**
@@ -9,19 +9,19 @@ Point2D Tram::stop() {
      *
      * @return Point where the train was before.
      */
-    if (positon+1<path.size() && !reverse){
-        positon++;
+    if (position+1<path.size() && !reverse){
+        position++;
     }
     else if (!reverse){
         reverse = !reverse;
-        positon --;
+        position --;
     }
-    else if (positon-1>=0){
-        positon --;
+    else if (position-1>=0){
+        position --;
     }
     else {
         reverse = !reverse;
-        positon ++;
+        position ++;
     }
 
     return peek_next(-1);
@@ -36,23 +36,23 @@ Point2D Tram::peek_next(int index) {
      * @param index relative time
      * @return point where the train would be
      */
-    if (positon+index<path.size() && !reverse){
-        return *std::next(path.begin(), positon + index);
+    if (position+index<path.size() && !reverse){
+        return *std::next(path.begin(), position + index);
     }
     else if (!reverse){
-        int pos_after_rev = (int(path.size()) - 1 - (positon + index - (int(path.size()) - 1)));
+        int pos_after_rev = (int(path.size()) - 1 - (position + index - (int(path.size()) - 1)));
         reverse = ! reverse;
-        Point2D ans = peek_next(pos_after_rev - positon);
+        Point2D ans = peek_next(pos_after_rev - position);
         reverse = ! reverse;
         return ans;
     }
-    else if (positon-index>=0){
-        return *std::next(path.begin(), positon - index);
+    else if (position-index>=0){
+        return *std::next(path.begin(), position - index);
     }
     else {
-        int pos_after_rev = (0 - (positon - index - 0));
+        int pos_after_rev = (0 - (position - index - 0));
         reverse = ! reverse;
-        Point2D ans = peek_next(pos_after_rev - positon);
+        Point2D ans = peek_next(pos_after_rev - position);
         reverse = ! reverse;
         return ans;
     }
@@ -73,6 +73,13 @@ void Tram::add_stop(Point2D next_stop) {
 
 
 void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot){
+    std::mt19937 generator(random_tram_seed);
+    gen_rand_trams(graph, tram_amount, tram_length, depot, generator);
+}
+
+
+void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot,
+                              std::mt19937 generator) {
     /**
      * Function to random trams
      *
@@ -82,11 +89,8 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
      * @param depot position of depot (depot must be in tram path)
      *
      */
-    std::random_device rd;
-    std::mt19937 generator{seed};
 
     for (int i = 0; i != tram_amount; i++){
-
         Tram tram;
         tram.add_stop(depot);
         Point2D last = depot;
@@ -100,11 +104,11 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
             last = neighbour[next];
             tram.add_stop(last);
         }
+        tram.set_start_point(abs(int(generator())) % (tram_length));
+        tram.set_direction(bool(generator() % 2));
         trams.push_back(tram);
-        tram.set_start_point(int(generator()) % tram_length);
     }
 }
-
 
 std::tuple<uint32_t, uint32_t> TramList::stop(StationList& stationList){
     /**
@@ -123,7 +127,7 @@ std::tuple<uint32_t, uint32_t> TramList::stop(StationList& stationList){
 
         for (int i = 1; i < longest_voyage + 1; i++){
             Point2D dest = tram.peek_next(i);
-            uint32_t people_count = curentStat.GetPassengers(dest).count;
+            uint32_t people_count = stationList.Get(current_point).GetPassengers(dest).count;
             transported += people_count;
             distance += people_count * (i);
             stationList.delatePassengers(current_point, dest);
@@ -184,5 +188,9 @@ void TramList::update() {
         tram.stop();
     }
 }
+
+
+
+
 
 

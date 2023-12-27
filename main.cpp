@@ -1,39 +1,15 @@
 #include "Station.hpp"
 #include "Tram.hpp"
 #include <iostream>
+#include "Bees.hpp"
+#include "Problem.hpp"
+#include "Settings.hpp"
 
-std::tuple<uint32_t, uint32_t, uint32_t> check_ans(int time, StationList stationList, TramList trams){
-    // objective function params
-    uint32_t transported      = 0;
-    uint32_t all_passengers   = 0;
-    uint32_t distance         = 0;
 
-    for (int t = 0; t != time; t++){
-
-        // populating tram stops
-        all_passengers += stationList.GenerateRandomPass();
-
-        // packing people on trams and ride them to next stops
-        std::tuple<uint32_t, uint32_t> objective = trams.stop(stationList);
-
-        // objective function update
-        transported += std::get<0>(objective);
-        distance    += std::get<1>(objective);
-
-        stationList.Update();
-    }
-
-    return {transported, distance, all_passengers};
-}
 
 
 int main()
 {
-    constexpr int n = 5;
-    constexpr int m = 5;
-    constexpr int time = 10;
-    constexpr int tram_amount = 10;
-    constexpr int tram_length = 5; // to eliminate in final product
     Point2D depot{0, 0};
 
 
@@ -66,15 +42,34 @@ int main()
     TramList trams;
     trams.gen_rand_trams(graph, tram_amount, tram_length, depot);
 
+    TramProblem tramProblem(time_itt, stationList);
+
     // objective function params
-    std::tuple<uint32_t, uint32_t, uint32_t> objective = check_ans(time, stationList, trams);
-    uint32_t transported = std::get<0>(objective);
+    std::tuple<float, uint32_t> objective = tramProblem.run(trams);
+    float transported = std::get<0>(objective);
     uint32_t distance = std::get<1>(objective);
-    uint32_t all_passengers = std::get<2>(objective);
 
 
-    std::cout << float(transported) / float(all_passengers) * 100 << " % passengers transported" <<std::endl;
+
+    std::cout << transported * 100 << " % passengers transported" <<std::endl;
     std::cout << distance << " units traveled"<<std::endl;
 
+
+    objective = tramProblem.run(trams);
+    transported = std::get<0>(objective);
+    distance = std::get<1>(objective);
+
+
+
+    std::cout << transported * 100 << " % passengers transported" <<std::endl;
+    std::cout << distance << " units traveled"<<std::endl;
+
+    /*
+    std::random_device bees_seed;
+    std::mt19937 bees_generator(bees_seed());
+    Bees bees(10, 10, 10, 10, 10, tramProblem, bees_generator, graph, depot, trams, max_transported);
+    bees.run();
+    std::cout << bees.best_bee.quality * 100 << " % passengers transported" <<std::endl;
+    */
     return 0;
 }

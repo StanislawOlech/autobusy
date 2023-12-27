@@ -8,7 +8,6 @@
 #include <optional>
 #include <random>
 #include <unordered_set>
-#define  seed rd()
 
 
 /**
@@ -49,6 +48,8 @@ public:
     void AddPassengers(std::span<Passenger> new_passengers);
 
     friend std::ostream& operator<<(std::ostream &oss, Station station);
+
+    void Clear(){passengers_.clear();};
 
 private:
     Point2D position_;
@@ -97,7 +98,9 @@ public:
 
     void Update();
 
-    uint32_t GenerateRandomPass(uint32_t maxPassengers = 100, uint32_t groups = 10);
+    void Clear();
+
+    uint32_t GenerateRandomPass(std::mt19937 generator, uint32_t maxPassengers = 100, uint32_t groups = 10);
 
 private:
     std::unordered_map<Point2D, Station> stations_;

@@ -86,13 +86,9 @@ void StationList::Update()
     }
 }
 
-uint32_t StationList::GenerateRandomPass(uint32_t maxPassengers, uint32_t groups) {
+uint32_t StationList::GenerateRandomPass(std::mt19937 generator, uint32_t maxPassengers, uint32_t groups) {
     uint32_t passenger_number = 0;
     std::vector<Point2D> station_points;
-
-    // initizalize random generator
-    std::random_device rd;
-    std::mt19937 generator{seed};
 
     // retrieve all stations
     for (const auto& pair : stations_) {
@@ -115,4 +111,10 @@ uint32_t StationList::GenerateRandomPass(uint32_t maxPassengers, uint32_t groups
         stations_.at(pair.first).AddPassengers(new_passengers);
     }
     return passenger_number;
+}
+
+void StationList::Clear() {
+    for (auto& pair : stations_){
+        pair.second.Clear();
+    }
 }
