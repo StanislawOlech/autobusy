@@ -336,10 +336,11 @@ void GUI::DrawArguments()
     MakeWarningPopup(u8"Liczba elitarnych rozwiązań##zaduże",
                      u8"Liczba elitarnych rozwiązań nie może być większa od liczby najlepszych rozwiązań");
 
-    MakeInputPositive(u8"Otoczenie najlepszych rozwiązań",
-                      u8"Otoczenie najlepszych rozwiązań musi być dodatnie", &best_size_);
 
-    if (ImGui::InputInt("Otoczenie elitarnych rozwiązań", &elite_size_))
+    MakeInputPositive(u8"Liczba pszczół wysłanych do najlepszych rozwiązań",
+                      u8"Liczba zrekrutowanych pszczół musi być dodatnia", &best_size_);
+
+    if (ImGui::InputInt("Liczba pszczół wysłanych do elitarnych rozwiązań", &elite_size_))
     {
         if (elite_size_ <= 0)
         {
@@ -354,7 +355,13 @@ void GUI::DrawArguments()
     }
     MakeWarningPopup(u8"Otoczenie elitarnych rozwiązań##dodatnie", u8"Otoczenie elitarnych rozwiązań musi być dodatnia");
     MakeWarningPopup(u8"Otoczenie elitarnych rozwiązań##zamałe",
-                     u8"Otoczenie elitarnych rozwiązań musi być większ od otoczenie najlepszych rozwiązań");
+                     u8"Otoczenie elitarnych rozwiązań musi być większe od otoczenia najlepszych rozwiązań");
+
+
+    MakeInputPositive(u8"Rozmiar otoczenia rozwiązania", u8"Rozmiar otoczenia musi być dodatni", &neighborhood_size_);
+
+
+    MakeInputPositive(u8"Czas życia rozwiązania", u8"Czas życia musi być dodatni", &lifetime_);
 
     ImGui::PopItemWidth();
 
@@ -575,7 +582,14 @@ AlgorithmParameters GUI::Export() const
 {
     AlgorithmParameters parameters;
 
-    parameters.numScouts = solutions_number_ - elite_number_ - best_number_;
+    parameters.numScouts = solutions_number_;
 
-    parameters.numRecruits
+    parameters.bestCount = best_number_;
+    parameters.eliteCount = elite_number_;
+
+    parameters.bestRecruits = best_size_;
+    parameters.eliteRecruits = elite_size_;
+
+    parameters.neighborhoodSize = best_size_;
+
 }

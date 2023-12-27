@@ -56,6 +56,8 @@ private:
     int best_number_ = 1;
     int elite_size_ = 2;
     int best_size_ = 1;
+    int neighborhood_size_ = 5;
+    int lifetime_= 10;
 };
 
 #endif //AUTOBUS_GUI_HPP
