@@ -10,10 +10,13 @@
 #include "Problem.hpp"
 #include "Settings.hpp"
 
-enum criterion{
+enum criterion {
     max_transported = 0,
-    max_distance = 1
+    max_distance = 1,
+    CRITERION_NR_ITEMS
 };
+
+std::string_view CriterionToString(criterion c);
 
 struct AlgorithmParameters
 {
@@ -29,6 +32,17 @@ struct AlgorithmParameters
     int maxIterations;
     int beeLifeTime;
 };
+
+
+struct ProblemParameters
+{
+    int tramCount;
+    Graph<Point2D> stations;
+    TramProblem tramProblem;
+    StationList stationList;
+    criterion problemCriterion;
+};
+
 
 
 // Represents a bee's location and quality

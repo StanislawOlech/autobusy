@@ -1,5 +1,20 @@
 #include "Bees.hpp"
 
+std::string_view CriterionToString(criterion c)
+{
+    switch (c)
+    {
+        case max_transported:
+            return "Maksymalny przewóz";
+        case max_distance:
+            return "Maksymalny dystans";
+        case CRITERION_NR_ITEMS:
+            break;
+    }
+    return "";
+}
+
+
 Bees::Bees(
           AlgorithmParameters parameters,       TramProblem tramProblem,
           std::mt19937 generator,               Graph<Point2D> graph,
