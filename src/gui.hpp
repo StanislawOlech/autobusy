@@ -1,6 +1,7 @@
 #ifndef AUTOBUS_GUI_HPP
 #define AUTOBUS_GUI_HPP
 
+#include "gui_utility.hpp"
 #include "Graph.hpp"
 #include "Station.hpp"
 #include "Bees.hpp"
@@ -16,19 +17,15 @@ void MakeWarningPopup(const char* name, const char* text);
 void MakeInputPositive(const char* name, const char* error_text, int *number);
 
 
-struct PassengerGui
-{
-    int count = 0;
-    int dest_id = -1;
-};
-
 
 class GUI
 {
 public:
     void Draw();
 
-    [[nodiscard]] AlgorithmParameters Export() const ;
+    [[nodiscard]] AlgorithmParameters ExportAlgorithm() const ;
+
+    [[nodiscard]] ProblemParameters ExportProblem() const ;
 
 private:
     void DrawAlgorithm();
@@ -44,7 +41,7 @@ private:
 
 private:
     std::vector<Point2D> stations_ = {{0, 0}};
-    std::vector<uint8_t> connections_{1};
+    std::vector<uint8_t> connections_{1}; // Cant be vector<bool> due to specialization
 
     std::unordered_map<std::size_t, std::vector<std::vector<PassengerGui>>> table3D;
 
@@ -58,6 +55,8 @@ private:
     int best_size_ = 1;
     int neighborhood_size_ = 5;
     int lifetime_= 10;
+    int passenger_loss_rate = 2;
+    criterion problemCriterion = max_transported;
 };
 
 #endif //AUTOBUS_GUI_HPP

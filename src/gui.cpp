@@ -363,6 +363,34 @@ void GUI::DrawArguments()
 
     MakeInputPositive(u8"Czas życia rozwiązania", u8"Czas życia musi być dodatni", &lifetime_);
 
+
+    MakeInputPositive(u8"Współczynnik straty pasażerów", u8"Współczynnik musi być dodatni", &passenger_loss_rate);
+    // TODO - dodać jakieś wyjaśnienie
+
+
+    ImGui::PopItemWidth();
+
+
+    ImGui::PushItemWidth(145);
+
+    auto preview_text = CriterionToString(problemCriterion);
+
+    if (ImGui::BeginCombo(u8"Funkcja celu", preview_text.data()))
+    {
+        for (int i = 0; i < CRITERION_NR_ITEMS; ++i)
+        {
+            auto text = CriterionToString(static_cast<criterion>(i));
+            const bool is_selected = (problemCriterion == i);
+
+            if (ImGui::Selectable(text.data(), is_selected))
+                problemCriterion = static_cast<criterion>(i);
+
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
     ImGui::PopItemWidth();
 
 }
@@ -569,27 +597,31 @@ void GUI::DrawResultWindow()
         ImGui::Text(u8"Dodać uruchomienie algorytmu"); // FIXME
         ImGui::Separator();
 
-        //static int unused_i = 0;
-        //ImGui::Combo("Combo", &unused_i, "Delete\0Delete harder\0");
-
         if (ImGui::Button("Przerwij", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
         ImGui::EndPopup();
     }
 
 }
 
-AlgorithmParameters GUI::Export() const
+AlgorithmParameters GUI::ExportAlgorithm() const
 {
-    AlgorithmParameters parameters;
-
-    parameters.numScouts = solutions_number_;
-
-    parameters.bestCount = best_number_;
-    parameters.eliteCount = elite_number_;
-
-    parameters.bestRecruits = best_size_;
-    parameters.eliteRecruits = elite_size_;
-
-    parameters.neighborhoodSize = best_size_;
-
+    return {
+        .numScouts = solutions_number_,
+        .bestCount = best_number_,
+        .eliteCount = elite_number_,
+        .neighborhoodSize = neighborhood_size_,
+        .maxIterations = max_iter_,
+        .beeLifeTime = lifetime_
+    };
 }
+
+ProblemParameters GUI::ExportProblem() const
+{
+    Graph<Point2D> graph = ConvertGuiGraphToGraph(connections_, stations_);
+
+//    TramProblem tramProblem{};
+    PassengerTable::Table3D passengerTable = ConvertGuiTableToTable3D(table3D, stations_);
+    // TODO finish
+}
+
+

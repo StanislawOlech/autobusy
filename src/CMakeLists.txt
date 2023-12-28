@@ -6,6 +6,7 @@ set(SOURCE_FILES
         Station.cpp
         Bees.cpp
         Problem.cpp
+        gui_utility.cpp
         )
 
 set(GUI_SOURCE_FILES
