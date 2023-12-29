@@ -43,3 +43,14 @@ TEST(TramTest, peek_tram4)
     Tram tram{vec1};
     ASSERT_EQ(tram.peek_next(6), Point2D({5, 6}));
 }
+
+TEST(TramTest, peek_tram5)
+{
+    std::vector<Point2D> vec1 = {{0, 0}, {-1000, -1000}, {1, 1}, {1, 0}, {0, 0},
+                                 {0, 1}, {-1000, -1000}, {1, 0}};
+    Tram tram{vec1};
+    tram.set_direction(false);
+    tram.set_start_point(7);
+
+    ASSERT_EQ(tram.peek_next(1), Point2D({-1000, -1000}));
+}
