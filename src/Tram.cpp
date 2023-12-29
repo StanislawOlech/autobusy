@@ -9,6 +9,7 @@ Point2D Tram::stop() {
      *
      * @return Point where the train was before.
      */
+     Point2D station = *std::next(path.begin(), position);
     if (position+1<path.size() && !reverse){
         position++;
     }
@@ -24,7 +25,7 @@ Point2D Tram::stop() {
         position ++;
     }
 
-    return peek_next(-1);
+    return station;
 }
 
 Point2D Tram::peek_next(int index) {
@@ -100,7 +101,7 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
             if (it == nullptr){break;}
 
             auto neighbour = *it;
-            uint32_t next = int(generator()) % neighbour.size();
+            uint32_t next = uint32_t(generator() % neighbour.size());
             last = neighbour[next];
             tram.add_stop(last);
         }
@@ -127,6 +128,9 @@ std::tuple<uint32_t, uint32_t> TramList::stop(StationList& stationList){
 
         for (int i = 1; i < longest_voyage + 1; i++){
             Point2D dest = tram.peek_next(i);
+
+            if (NormL1(dest, bad_station) == 0){continue;}
+
             uint32_t people_count = stationList.Get(current_point).GetPassengers(dest).count;
             transported += people_count;
             distance += people_count * (i);
@@ -159,17 +163,18 @@ std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int
     uint32_t transported = 0;
     uint32_t distance    = 0;
 
-
     for (auto tram : trams){
 
         for (int i = traveled; i < longest_voyage + 1; i++){
             Point2D first_point = tram.peek_next(i);
             if (first_point != trans_station){continue;}
 
-            for (int j = 1 + i; j < longest_voyage + 1; j++) {
-                Station orginalStation = stationList.Get(orginalpoint);
+            for (int j = 1 + i; j < longest_voyage + 1;  j++) {
                 Point2D dest = tram.peek_next(j);
-                uint32_t people_count = orginalStation.GetPassengers(dest).count;
+
+                if (NormL1(dest, bad_station) == 0){continue;}
+
+                uint32_t people_count = stationList.Get(orginalpoint).GetPassengers(dest).count;
                 transported += people_count;
                 distance += people_count * (j);
                 stationList.delatePassengers(orginalpoint, dest);
@@ -178,6 +183,7 @@ std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int
                 //std::cout << "z dworca: " << orginalStation << " zniknelo: " << people_count << " jadacych do: " << dest << " przez " << trans_station << std::endl;
 
             }
+            break;
         }
     }
     return {transported, distance};

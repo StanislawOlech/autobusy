@@ -1,6 +1,7 @@
 #include "Station.hpp"
 #include "Tram.hpp"
 #include <iostream>
+#include <map>
 #include "Bees.hpp"
 #include "Problem.hpp"
 #include "Settings.hpp"
@@ -50,19 +51,28 @@ int main()
     uint32_t distance = std::get<1>(objective);
 
 
-
     std::cout << transported * 100 << " % passengers transported" <<std::endl;
     std::cout << distance << " units traveled"<<std::endl;
 
 
-    objective = tramProblem.run(trams);
-    transported = std::get<0>(objective);
-    distance = std::get<1>(objective);
+    int all = 0;
+    std::map<int, int> answers;
+
+    for (int x = 0; x < 1000; x ++){
+        objective = tramProblem.run(trams);
+        distance = std::get<1>(objective);
+
+        answers[int(distance)] ++;
+        all ++;
+    }
+
+    std::map<int,int>::iterator best
+            = std::max_element(answers.begin(),answers.end(),[] (const std::pair<char,int>& a, const std::pair<char,int>& b)->bool{ return a.second < b.second; } );
+
+    std::cout << float(best->second) / float(all) * 100<< "%   " << best->first << " " <<std::endl;
 
 
 
-    std::cout << transported * 100 << " % passengers transported" <<std::endl;
-    std::cout << distance << " units traveled"<<std::endl;
 
     /*
     std::random_device bees_seed;

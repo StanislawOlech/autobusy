@@ -3,7 +3,7 @@
 
 
 constexpr int n = 5;
-constexpr int m = 2;
+constexpr int m = 5;
 constexpr int time_itt = 10;
 constexpr int tram_amount = 10;
 constexpr int tram_length = 5; // to eliminate in final product
