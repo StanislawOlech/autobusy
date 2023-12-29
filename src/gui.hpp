@@ -36,7 +36,7 @@ private:
 
     void DrawStyle();
 
-    void DrawResultPlot();
+    void DrawResultPlot(const std::vector<float> &y_value);
     void DrawResultWindow();
 
 private:

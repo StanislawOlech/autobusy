@@ -66,7 +66,7 @@ void GUI::Draw()
     ImGui::End();
 
     ImGui::Begin("Wykres");
-    DrawResultPlot();
+    DrawResultPlot({});
     ImGui::End();
 
     ImGui::Begin("Wynik");
@@ -108,25 +108,21 @@ void GUI::DrawAlgorithm()
         DrawPassengers(&open_passengers);
 }
 
-void GUI::DrawResultPlot()
+void GUI::DrawResultPlot(const std::vector<float> &y_value)
 {
-    static float xs1[1001], ys1[1001];
+    static float ys1[1001];
     for (int i = 0; i < 1001; ++i) {
-        xs1[i] = i * 0.001f;
-        ys1[i] = 0.5f + 0.5f * sin(50 * (xs1[i] + (float)ImGui::GetTime() / 10));
-    }
-    static double xs2[20], ys2[20];
-
-    for (int i = 0; i < 20; ++i) {
-        xs2[i] = i * 1/19.0f;
-        ys2[i] = xs2[i] * xs2[i];
+        ys1[i] = 0.5f + 0.5f * sin((float)i / 10);
     }
 
-    if (ImPlot::BeginPlot("Line Plots", {-1, -1})) {
-        ImPlot::SetupAxes("x","y");
-        ImPlot::PlotLine("f(x)", xs1, ys1, 1001);
-        ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-        ImPlot::PlotLine("g(x)", xs2, ys2, 20,ImPlotLineFlags_Segments);
+    static std::vector<float> x_value;
+    x_value.resize(1001);
+    std::iota(x_value.begin(), x_value.end(), 1);
+
+
+    if (ImPlot::BeginPlot("Wykres funkcji celu", {-1, -1})) {
+        ImPlot::SetupAxes("Numer iteracji","Funkcja celu");
+        ImPlot::PlotLine("f(x)", x_value.data(), ys1, 1001);
         ImPlot::EndPlot();
     }
 }
