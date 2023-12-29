@@ -43,7 +43,7 @@ Point2D Tram::peek_next(int index) {
     else if (!reverse){
         int pos_after_rev = (int(path.size()) - 1 - (position + index - (int(path.size()) - 1)));
         reverse = ! reverse;
-        Point2D ans = peek_next(pos_after_rev - position);
+        Point2D ans = peek_next(pos_after_rev);
         reverse = ! reverse;
         return ans;
     }

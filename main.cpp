@@ -54,26 +54,6 @@ int main()
     std::cout << transported * 100 << " % passengers transported" <<std::endl;
     std::cout << distance << " units traveled"<<std::endl;
 
-
-    int all = 0;
-    std::map<int, int> answers;
-
-    for (int x = 0; x < 1000; x ++){
-        objective = tramProblem.run(trams);
-        distance = std::get<1>(objective);
-
-        answers[int(distance)] ++;
-        all ++;
-    }
-
-    std::map<int,int>::iterator best
-            = std::max_element(answers.begin(),answers.end(),[] (const std::pair<char,int>& a, const std::pair<char,int>& b)->bool{ return a.second < b.second; } );
-
-    std::cout << float(best->second) / float(all) * 100<< "%   " << best->first << " " <<std::endl;
-
-
-
-
     /*
     std::random_device bees_seed;
     std::mt19937 bees_generator(bees_seed());
