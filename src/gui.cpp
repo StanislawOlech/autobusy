@@ -276,8 +276,12 @@ void GUI::DrawStationTable()
 void GUI::DrawArguments()
 {
     ImGui::PushItemWidth(120);
-    MakeInputPositive(u8"Liczba iteracji", u8"Liczba iteracji musi być dodatnia", &max_iter_);
+
     MakeInputPositive(u8"Liczba autobusów", u8"Liczba autbusów musi być dodatnia", &autobus_number_);
+    MakeInputPositive(u8"Współczynnik straty pasażerów", u8"Współczynnik musi być dodatni", &passenger_loss_rate);
+    // TODO - dodać jakieś wyjaśnienie
+
+    MakeInputPositive(u8"Liczba iteracji", u8"Liczba iteracji musi być dodatnia", &max_iter_);
 
     if (ImGui::InputInt(u8"Liczba rozwiązań", &solutions_number_))
     {
@@ -360,8 +364,6 @@ void GUI::DrawArguments()
     MakeInputPositive(u8"Czas życia rozwiązania", u8"Czas życia musi być dodatni", &lifetime_);
 
 
-    MakeInputPositive(u8"Współczynnik straty pasażerów", u8"Współczynnik musi być dodatni", &passenger_loss_rate);
-    // TODO - dodać jakieś wyjaśnienie
 
 
     ImGui::PopItemWidth();
