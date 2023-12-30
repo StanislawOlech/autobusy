@@ -11,6 +11,7 @@ set(TEST_SOURCE_FILES
         GraphTest.cpp
         TramTest.cpp
         StationTest.cpp
+        ProblemTest.cpp
         GuiUtilityTest.cpp
 )
 

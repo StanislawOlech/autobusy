@@ -10,7 +10,7 @@ public:
     TramProblem(int time_, StationList& stationList_);
     std::tuple<float, uint32_t> run(TramList& trams);
 private:
-    int time;
+    const int time;
     StationList stationList;
 };
 #endif

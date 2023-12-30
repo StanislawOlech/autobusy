@@ -1,6 +1,7 @@
 #include "Station.hpp"
 #include "Tram.hpp"
 #include <iostream>
+#include <map>
 #include "Bees.hpp"
 #include "Problem.hpp"
 #include "Settings.hpp"
@@ -48,17 +49,6 @@ int main()
     std::tuple<float, uint32_t> objective = tramProblem.run(trams);
     float transported = std::get<0>(objective);
     uint32_t distance = std::get<1>(objective);
-
-
-
-    std::cout << transported * 100 << " % passengers transported" <<std::endl;
-    std::cout << distance << " units traveled"<<std::endl;
-
-
-    objective = tramProblem.run(trams);
-    transported = std::get<0>(objective);
-    distance = std::get<1>(objective);
-
 
 
     std::cout << transported * 100 << " % passengers transported" <<std::endl;
