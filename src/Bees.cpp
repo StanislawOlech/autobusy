@@ -35,7 +35,7 @@ Bees::Bees(
     }
 
     std::sort(solutions.begin(), solutions.end(), std::greater<>());
-    bestBeesIteration_.push_back(solutions[0]);
+    bestValueIteration_.push_back(solutions[0].quality * 100.f);
 }
 
 Bee Bees::run() {
@@ -48,7 +48,7 @@ Bee Bees::run() {
 
         std::sort(solutions.begin(), solutions.end(), std::greater<>());
 
-        bestBeesIteration_.push_back(solutions[0]);
+        bestValueIteration_.push_back(solutions[0].quality * 100.f);
     }
     return solutions[0];
 }

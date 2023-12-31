@@ -64,6 +64,8 @@ public:
     // Perform the bee algorithm
     Bee run();
 
+    [[nodiscard]] std::vector<double> getResultIteration() const { return bestValueIteration_; }
+
 private:
     void elites_search();
 
@@ -82,7 +84,7 @@ private:
     std::vector<Bee> solutions;
 
     // in each iteration, for generating plot
-    std::vector<Bee> bestBeesIteration_;
+    std::vector<double> bestValueIteration_;
 
     // Problem
     ProblemParameters problemParameters_;
