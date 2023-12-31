@@ -142,7 +142,6 @@ std::tuple<uint32_t, uint32_t> TramList::stop(StationList& stationList){
             transported += std::get<0>(objective);
             distance += std::get<1>(objective);
 
-
             //std::cout << stationList.Get(current_point).GetPassengers(dest).count;
         }
     }
@@ -187,6 +186,12 @@ std::tuple<uint32_t, uint32_t> TramList::transfers(StationList& stationList, int
         }
     }
     return {transported, distance};
+}
+
+void TramList::deleteTram(std::size_t position){
+    auto it = trams.begin();
+    std::advance(it, position);
+    trams.erase(it);
 }
 
 void TramList::update() {

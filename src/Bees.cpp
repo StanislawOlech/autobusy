@@ -17,68 +17,106 @@ std::string_view CriterionToString(criterion c)
 
 Bees::Bees(
           AlgorithmParameters parameters,       TramProblem tramProblem,
-          std::mt19937 generator,               Graph<Point2D> graph,
+          double seed,               Graph<Point2D> graph,
           Point2D depot,                        TramList& trams,
           criterion problem_criterion)
-        : tramProblem_(tramProblem),            generator_(generator),
-          graph_(graph),                        depot_(depot),
-          problem_criterion_(problem_criterion){
+        : tramProblem_(tramProblem),             seed_(seed),
+          graph_(graph),                         depot_(depot),
+          problem_criterion_(problem_criterion), parameters_(parameters){
 
-    best_bee.trams = trams;
-    best_bee.quality = calculateFitness(trams);
+    // original bee becomes solution bee
+    Bee firstBee;
+    firstBee.trams = trams;
+    firstBee.quality = calculateFitness(trams);
+    solutions.push_back(firstBee);
 
-    // Initialize scout bees randomly
-    for (int i=0; i != parameters.numScouts; i ++) {
-        // generate random scouts
+    // Initialize rest of solutions bees randomly
+    for (int i=0; i != parameters.solutionsNumber - 1; i ++) {
+        // generate generator
+        std::mt19937 generator(seed_);
+        seed_ = seed_ + generator();
+
+        // generate random solutions
         Bee bee;
-        bee.trams.gen_rand_trams(graph_, tram_amount, tram_length, depot_, generator_);
-        scouts.push_back(bee);
+        bee.trams.gen_rand_trams(graph_, tram_amount, tram_length, depot_, generator);
+        bee.quality = calculateFitness(bee.trams);
+        solutions.push_back(bee);
     }
 
-    // Run the initial fitness calculation
-    for (auto& scout : scouts) {
-        scout.quality = calculateFitness(scout.trams);
+    std::sort(solutions.begin(), solutions.end(), std::greater<>());
+}
+
+Bee Bees::run() {
+    for (int iteration = 0; iteration != parameters_.maxIterations; iteration++) {
+        elites_search();
+
+        best_search();
+
+        scouts_search();
+
+        std::sort(solutions.begin(), solutions.end(), std::greater<>());
+    }
+    return solutions[0];
+}
+
+void Bees::elites_search() {
+    for (int i=0; i != parameters_.eliteCount; i ++) {
+        Bee newBee(solutions[i]);
+
+        for (int j=0; j != parameters_.eliteRecruits; j ++) {
+            Bee tempBee(solutions[i]);
+
+            // generate generator
+            std::mt19937 generator(seed_);
+            seed_ = seed_ + generator();
+
+            tempBee.trams.deleteTram(generator() % tram_amount);
+            tempBee.trams.gen_rand_trams(graph_, 1, tram_length, depot_);
+            tempBee.quality = calculateFitness(tempBee.trams);
+
+            if (tempBee.quality > newBee.quality){newBee = tempBee;}
+        }
+        if (newBee.quality > solutions[i].quality){solutions[i] = newBee;}
+    }
+}
+
+void Bees::best_search() {
+    for (int i=parameters_.eliteCount; i != parameters_.bestCount; i ++) {
+        Bee newBee(solutions[i]);
+
+        for (int j=0; j != parameters_.bestRecruits; j ++) {
+            Bee tempBee(solutions[i]);
+
+            // generate generator
+            std::mt19937 generator(seed_);
+            seed_ = seed_ + generator();
+
+            tempBee.trams.deleteTram(generator() % tram_amount);
+            tempBee.trams.gen_rand_trams(graph_, 1, tram_length, depot_);
+            tempBee.quality = calculateFitness(tempBee.trams);
+
+            if (tempBee.quality > newBee.quality){newBee = tempBee;}
+        }
+        if (newBee.quality > solutions[i].quality){solutions[i] = newBee;}
     }
 
-    std::sort(scouts.begin(), scouts.end(), std::greater<Bee>());
-
-    if (scouts[0].quality > best_bee.quality){
-        best_bee = scouts[0];
-    }
 }
 
-void Bees::run() {
-    for (int iteration = 0; iteration < parameters_.maxIterations; ++iteration) {
-        // Perform scout bee exploration
-        scoutBeesExplore();
+void Bees::scouts_search() {
+    for (int i=parameters_.bestCount; i != parameters_.solutionsNumber; i ++) {
+        // generate generator
+        std::mt19937 generator(seed_);
+        seed_ = seed_ + generator();
 
-        // Recruit worker bees based on scout information
-        recruitWorkerBees();
-
-        // Update the bee algorithm (e.g., perform dance communication)
-        updateBeeAlgorithm();
+        // generate random solutions
+        Bee bee;
+        bee.trams.gen_rand_trams(graph_, tram_amount, tram_length, depot_, generator);
+        bee.quality = calculateFitness(bee.trams);
+        solutions[i] = bee;
     }
 }
 
 
-
-void Bees::scoutBeesExplore() {
-    // Logic for scout bees to explore the search space
-    // ...
-}
-
-void Bees::recruitWorkerBees() {
-    // Logic for recruiting worker bees based on scout information
-    // ...
-}
-
-void Bees::updateBeeAlgorithm() {
-    // Update the bee algorithm, e.g., perform dance communication
-    performDanceCommunication();
-
-    // Additional update logic if needed
-    // ...
-}
 
 float Bees::calculateFitness(TramList trams) {
     // Calculate the fitness (quality) of a Trams
@@ -92,26 +130,9 @@ float Bees::calculateFitness(TramList trams) {
     }
 }
 
-void Bees::performDanceCommunication() {
-    // Logic for dance communication among bees
-    // ...
-}
 
-Tram Bees::generate_rand_tram() {
-    Tram tram;
-    tram.add_stop(depot_);
-    Point2D last = depot_;
-    for (int j = 0; j != tram_length; j ++){
-        auto it = graph_.GetEdge(last);
 
-        if (it == nullptr){break;}
 
-        auto neighbour = *it;
-        uint32_t next = int(generator_()) % neighbour.size();
-        last = neighbour[next];
-        tram.add_stop(last);
-    }
-    tram.set_start_point(abs(int(generator_())) % (tram_length));
-    tram.set_direction(bool(generator_() % 1));
-    return tram;
-}
+
+
+

@@ -54,12 +54,21 @@ int main()
     std::cout << transported * 100 << " % passengers transported" <<std::endl;
     std::cout << distance << " units traveled"<<std::endl;
 
-    /*
+
     std::random_device bees_seed;
-    std::mt19937 bees_generator(bees_seed());
-    Bees bees(10, 10, 10, 10, 10, tramProblem, bees_generator, graph, depot, trams, max_transported);
-    bees.run();
-    std::cout << bees.best_bee.quality * 100 << " % passengers transported" <<std::endl;
-    */
+    AlgorithmParameters algorithmParameters;
+    algorithmParameters.solutionsNumber  = 20;
+    algorithmParameters.bestCount        = 10;
+    algorithmParameters.eliteCount       =  5;
+    algorithmParameters.bestRecruits     =  5;
+    algorithmParameters.eliteRecruits    = 10;
+    algorithmParameters.neighborhoodSize = 10;
+    algorithmParameters.maxIterations    =100;
+    algorithmParameters.beeLifeTime      = 10;
+
+    Bees bees(algorithmParameters, tramProblem, 2137, graph, depot, trams, max_transported);
+    Bee best_bee = bees.run();
+    std::cout << best_bee.quality * 100 << " % passengers transported" <<std::endl;
+
     return 0;
 }
