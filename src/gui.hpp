@@ -8,6 +8,7 @@
 
 #include <unordered_set>
 #include <functional>
+#include <future>
 
 
 void HelpMarker(const char* desc);
@@ -16,6 +17,7 @@ void MakeWarningPopup(const char* name, const char* text);
 
 void MakeInputPositive(const char* name, const char* error_text, int *number);
 
+std::vector<double> RunAlgorithm();
 
 
 class GUI
@@ -31,7 +33,6 @@ public:
 
     void LoadDataFromFile();
 
-private:
     void DrawAlgorithm();
     void DrawStationList();
     void DrawStationTable();
@@ -40,10 +41,13 @@ private:
 
     void DrawStyle();
 
-    void DrawResultPlot(const std::vector<float> &y_value);
+    void DrawResultPlot();
     void DrawResultWindow();
 
 private:
+    std::vector<double> y_value_;
+    std::future<std::vector<double>> future_y_value_;
+
     std::vector<Point2D> stations_ = {{0, 0}};
     std::vector<uint8_t> connections_{1}; // Cant be vector<bool> due to specialization
 

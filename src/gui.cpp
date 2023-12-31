@@ -67,7 +67,7 @@ void GUI::Draw()
     ImGui::End();
 
     ImGui::Begin("Wykres");
-    DrawResultPlot({});
+    DrawResultPlot();
     ImGui::End();
 
     ImGui::Begin("Wynik");
@@ -116,21 +116,16 @@ void GUI::DrawAlgorithm()
         DrawPassengers(&open_passengers);
 }
 
-void GUI::DrawResultPlot(const std::vector<float> &y_value)
+void GUI::DrawResultPlot()
 {
-    static float ys1[1001];
-    for (int i = 0; i < 1001; ++i) {
-        ys1[i] = 0.5f + 0.5f * sin((float)i / 10);
-    }
-
-    static std::vector<float> x_value;
-    x_value.resize(1001);
+    static std::vector<double> x_value;
+    x_value.resize(y_value_.size());
     std::iota(x_value.begin(), x_value.end(), 1);
 
 
     if (ImPlot::BeginPlot("Wykres funkcji celu", {-1, -1})) {
         ImPlot::SetupAxes("Numer iteracji","Funkcja celu");
-        ImPlot::PlotLine("f(x)", x_value.data(), ys1, 1001);
+        ImPlot::PlotLine("f(x)", x_value.data(), y_value_.data(), (int)y_value_.size());
         ImPlot::EndPlot();
     }
 }
@@ -591,6 +586,9 @@ void GUI::DrawResultWindow()
     if (ImGui::Button("Uruchom algorytm"))
     {
         ImGui::OpenPopup("Algorytm");
+
+        future_y_value_ = std::async(std::launch::async, &RunAlgorithm);
+
     }
 
     // Center window
@@ -600,19 +598,23 @@ void GUI::DrawResultWindow()
     if (ImGui::BeginPopupModal("Algorytm", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGui::Text(u8"Proszę czekać");
-        ImGui::Text(u8"Dodać uruchomienie algorytmu"); // FIXME
-        ImGui::Separator();
 
-        if (ImGui::Button("Przerwij", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+        if (future_y_value_.valid())
+        {
+            if (future_y_value_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
+            {
+                y_value_ = future_y_value_.get();
+                ImGui::CloseCurrentPopup();
+            }
+        }
         ImGui::EndPopup();
     }
-
 }
 
 AlgorithmParameters GUI::ExportAlgorithm() const
 {
     return {
-        .numScouts = solutions_number_,
+        .solutionsNumber = solutions_number_,
         .bestCount = best_number_,
         .eliteCount = elite_number_,
         .neighborhoodSize = neighborhood_size_,
@@ -664,6 +666,61 @@ void GUI::SaveDataToFile()
         if (ImGui::Button("Ok", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
         ImGui::EndPopup();
     }
+}
+
+std::vector<double> RunAlgorithm()
+{
+    Point2D depot{0, 0};
+
+    // generating graph and stations
+    Graph<Point2D> graph{};
+    PassengerTable::Table3D table3D;
+    StationList stationList{table3D};
+
+    for (int x = 0; x != n; x++){
+        for (int y = 0; y != m; y++){
+            if (y + 1 < m){
+                graph.AddEdge({x, y}, {x, y + 1});
+                graph.AddEdge({x, y + 1}, {x, y});
+            }
+            if (x + 1 < n){
+                graph.AddEdge({x, y}, {x + 1, y});
+                graph.AddEdge({x + 1, y}, {x, y});
+            }
+            if (x + 1 < n && y + 1 < m){
+                graph.AddEdge({x, y}, {x + 1, y + 1});
+                graph.AddEdge({x + 1, y + 1}, {x, y});
+                graph.AddEdge({x + 1, y}, {x, y + 1});
+                graph.AddEdge({x, y + 1}, {x + 1, y});
+            }
+            stationList.Create({x, y});
+        }
+    }
+
+    // random trams generation
+    TramList trams;
+    trams.gen_rand_trams(graph, tram_amount, tram_length, depot);
+
+    TramProblem tramProblem(time_itt, stationList);
+
+    std::random_device bees_seed{};
+    AlgorithmParameters algorithmParameters{};
+    algorithmParameters.solutionsNumber  = 20;
+    algorithmParameters.bestCount        = 10;
+    algorithmParameters.eliteCount       =  5;
+    algorithmParameters.bestRecruits     =  5;
+    algorithmParameters.eliteRecruits    = 10;
+    algorithmParameters.neighborhoodSize = 10;
+    algorithmParameters.maxIterations    =100;
+    algorithmParameters.beeLifeTime      = 10;
+
+    ProblemParameters problemParameters(tram_amount, graph, tramProblem, stationList, max_transported);
+
+    Bees bees(algorithmParameters, bees_seed(), depot, problemParameters);
+
+    bees.run();
+
+    return bees.getResultIteration();
 }
 
 
