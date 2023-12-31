@@ -55,8 +55,8 @@ int main()
     std::cout << distance << " units traveled"<<std::endl;
 
 
-    std::random_device bees_seed;
-    AlgorithmParameters algorithmParameters;
+    std::random_device bees_seed{};
+    AlgorithmParameters algorithmParameters{};
     algorithmParameters.solutionsNumber  = 20;
     algorithmParameters.bestCount        = 10;
     algorithmParameters.eliteCount       =  5;
@@ -69,7 +69,7 @@ int main()
     ProblemParameters problemParameters(tram_amount, graph, tramProblem, stationList, max_transported);
 
 
-    Bees bees(algorithmParameters, bees_seed(), depot, trams, problemParameters);
+    Bees bees(algorithmParameters, bees_seed(), depot, problemParameters);
     Bee best_bee = bees.run();
     std::cout << best_bee.quality * 100 << " % passengers transported" <<std::endl;
 

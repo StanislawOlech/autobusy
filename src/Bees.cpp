@@ -1,6 +1,7 @@
 #include "Bees.hpp"
 
 #include <utility>
+#include <limits>
 
 std::string_view CriterionToString(criterion c)
 {
@@ -18,29 +19,23 @@ std::string_view CriterionToString(criterion c)
 
 
 Bees::Bees(
-          AlgorithmParameters parameters, double seed,  Point2D depot, TramList& trams, ProblemParameters problemParameters)
-        : seed_(seed), depot_(depot), problemParameters_(std::move(problemParameters)), parameters_(parameters){
-
-    // original bee becomes solution bee
-    Bee firstBee;
-    firstBee.trams = trams;
-    firstBee.quality = calculateFitness(trams);
-    solutions.push_back(firstBee);
+          AlgorithmParameters parameters, uint32_t seed,  Point2D depot, ProblemParameters problemParameters)
+        : seed_(seed), depot_(depot), problemParameters_(std::move(problemParameters)), parameters_(parameters),
+          generator_{seed_}
+{
+    solutions.reserve(parameters.solutionsNumber);
 
     // Initialize rest of solutions bees randomly
-    for (int i=0; i != parameters.solutionsNumber - 1; i ++) {
-        // generate generator
-        std::mt19937 generator(seed_);
-        seed_ = seed_ + generator();
-
+    for (int i=0; i != parameters.solutionsNumber; i ++) {
         // generate random solutions
         Bee bee;
-        bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator);
+        bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
         bee.quality = calculateFitness(bee.trams);
         solutions.push_back(bee);
     }
 
     std::sort(solutions.begin(), solutions.end(), std::greater<>());
+    bestBeesIteration_.push_back(solutions[0]);
 }
 
 Bee Bees::run() {
@@ -52,6 +47,8 @@ Bee Bees::run() {
         scouts_search();
 
         std::sort(solutions.begin(), solutions.end(), std::greater<>());
+
+        bestBeesIteration_.push_back(solutions[0]);
     }
     return solutions[0];
 }
@@ -63,17 +60,17 @@ void Bees::elites_search() {
         for (int j=0; j != parameters_.eliteRecruits; j ++) {
             Bee tempBee(solutions[i]);
 
-            // generate generator
-            std::mt19937 generator(seed_);
-            seed_ = seed_ + generator();
-
-            tempBee.trams.deleteTram(generator() % tram_amount);
+            tempBee.trams.deleteTram(generator_() % tram_amount);
             tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_);
             tempBee.quality = calculateFitness(tempBee.trams);
 
-            if (tempBee.quality > newBee.quality){newBee = tempBee;}
+            if (tempBee.quality > newBee.quality){
+                newBee = tempBee;
+            }
         }
-        if (newBee.quality > solutions[i].quality){solutions[i] = newBee;}
+        if (newBee.quality > solutions[i].quality){
+            solutions[i] = newBee;
+        }
     }
 }
 
@@ -84,11 +81,7 @@ void Bees::best_search() {
         for (int j=0; j != parameters_.bestRecruits; j ++) {
             Bee tempBee(solutions[i]);
 
-            // generate generator
-            std::mt19937 generator(seed_);
-            seed_ = seed_ + generator();
-
-            tempBee.trams.deleteTram(generator() % tram_amount);
+            tempBee.trams.deleteTram(generator_() % tram_amount);
             tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_);
             tempBee.quality = calculateFitness(tempBee.trams);
 
@@ -101,13 +94,10 @@ void Bees::best_search() {
 
 void Bees::scouts_search() {
     for (int i=parameters_.bestCount; i != parameters_.solutionsNumber; i ++) {
-        // generate generator
-        std::mt19937 generator(seed_);
-        seed_ = seed_ + generator();
 
         // generate random solutions
         Bee bee;
-        bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator);
+        bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
         bee.quality = calculateFitness(bee.trams);
         solutions[i] = bee;
     }
@@ -127,8 +117,12 @@ float Bees::calculateFitness(TramList trams) {
         case CRITERION_NR_ITEMS:
             break;
     }
+    return std::numeric_limits<float>::min();
 }
 
 ProblemParameters::ProblemParameters(const int i, Graph<struct Point2D> graph, TramProblem problem, StationList list,
-                                     criterion criterion1) :tramCount(i), stations(std::move(graph)), tramProblem(std::move(problem)),
-                                                            stationList(std::move(list)), problemCriterion(criterion1){}
+                                     criterion criterion1)
+                                     :tramCount(i), stations(std::move(graph)), tramProblem(std::move(problem)),
+                                        stationList(std::move(list)), problemCriterion(criterion1)
+{
+}
