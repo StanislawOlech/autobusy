@@ -27,6 +27,10 @@ public:
 
     [[nodiscard]] ProblemParameters ExportProblem() const ;
 
+    void SaveDataToFile();
+
+    void LoadDataFromFile();
+
 private:
     void DrawAlgorithm();
     void DrawStationList();

@@ -4,6 +4,7 @@
 #include "implot.h"
 #include <cmath>
 #include <charconv>
+#include <fstream>
 
 
 void HelpMarker(const char* desc)
@@ -102,7 +103,14 @@ void GUI::DrawAlgorithm()
         DrawStationTable();
     }
     if (ImGui::CollapsingHeader(u8"Parametry sterujące"))
+    {
         DrawArguments();
+
+        if (ImGui::Button(u8"Zapisz dane do plik"))
+            SaveDataToFile();
+    }
+
+
 
     if (open_passengers)
         DrawPassengers(&open_passengers);
@@ -620,6 +628,42 @@ ProblemParameters GUI::ExportProblem() const
 //    TramProblem tramProblem{};
     PassengerTable::Table3D passengerTable = ConvertGuiTableToTable3D(table3D, stations_);
     // TODO finish
+}
+
+void GUI::SaveDataToFile()
+{
+    std::ofstream file{"Zapis.txt", std::ofstream::out};
+
+    if (!file.is_open())
+        ImGui::OpenPopup(u8"Nieudany zapis");
+    else
+    {
+        file << "# Dane algorytmu\n";
+        file << u8"Liczba autobusów: "  << autobus_number_ << '\n';
+        file << u8"Współczynnik straty autobusów: " << passenger_loss_rate << '\n';
+
+        file << u8"Liczba iteracji: " << max_iter_ << '\n';
+        file << u8"Liczba rozwiązań: " << solutions_number_ << '\n';
+
+        file << u8"Liczba rozwiązań najlepszych: " << best_number_ << '\n';
+        file << u8"Liczba rozwiązań elitarnych: " << elite_number_ << '\n';
+
+        file << u8"Liczba zatrudnionych pszczół do obszaru najlepszego: " << best_size_ << '\n';
+        file << u8"Liczba zatrudnionych pszczół do obszaru elitarnego: " << elite_size_ << '\n';
+
+        file << u8"Rozmiar sąsiectwa: " << neighborhood_size_ << '\n';
+        file << u8"Czas życia rozwiązania: " << neighborhood_size_ << '\n';
+        file << u8"Funkcja celu: " << problemCriterion << '\n';
+
+    }
+
+    if (ImGui::BeginPopupModal("Nieudany zapis", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text(u8"Nie można otworzyć pliku do zapisu");
+        ImGui::Separator();
+        if (ImGui::Button("Ok", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+        ImGui::EndPopup();
+    }
 }
 
 
