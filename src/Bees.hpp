@@ -20,7 +20,7 @@ std::string_view CriterionToString(criterion c);
 
 struct AlgorithmParameters
 {
-    int numScouts;
+    int solutionsNumber;
 
     int bestCount;// best_non-elite = best - elite
     int eliteCount; // elite <= best
@@ -36,6 +36,9 @@ struct AlgorithmParameters
 
 struct ProblemParameters
 {
+    ProblemParameters(int i, Graph<struct Point2D> graph, TramProblem problem, StationList list,
+                      criterion criterion1);
+
     int tramCount;
     Graph<Point2D> stations;
     TramProblem tramProblem;
@@ -56,45 +59,38 @@ public:
 
 class Bees {
 public:
-    Bees(AlgorithmParameters parameters,
-         TramProblem tramProblem, std::mt19937 generator, Graph<Point2D> graph, Point2D depot, TramList& trams,
-         criterion problem_criterion);
+    Bees(AlgorithmParameters parameters, uint32_t seed, Point2D depot, ProblemParameters problemParameters);
 
     // Perform the bee algorithm
-    void run();
+    Bee run();
 
 private:
-    // Bee-related methods
-    Tram generate_rand_tram();
-    void scoutBeesExplore();
-    void recruitWorkerBees();
-    void updateBeeAlgorithm();
+    void elites_search();
+
+    void best_search();
+
+    void scouts_search();
+
 
     // Utility methods
     float calculateFitness(TramList trams);
-    void performDanceCommunication();
 
-public:
-    Bee best_bee;
 private:
     AlgorithmParameters parameters_;
 
     // Bee populations
-    std::vector<Bee> scouts;
-    std::vector<Bee> workers;
-    std::vector<Bee> elites;
+    std::vector<Bee> solutions;
 
-    // Random number generator
-    std::mt19937_64 rng;
+    // in each iteration, for generating plot
+    std::vector<Bee> bestBeesIteration_;
 
     // Problem
-    TramProblem tramProblem_;
-    criterion problem_criterion_;
+    ProblemParameters problemParameters_;
 
-    Graph<Point2D> graph_;
-    std::mt19937 generator_;
+    uint32_t seed_;
     Point2D depot_;
 
+    std::mt19937 generator_;
 };
 
 
