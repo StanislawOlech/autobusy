@@ -36,6 +36,9 @@ struct AlgorithmParameters
 
 struct ProblemParameters
 {
+    ProblemParameters(const int i, Graph<struct Point2D> graph, TramProblem problem, StationList list,
+                      criterion criterion1);
+
     int tramCount;
     Graph<Point2D> stations;
     TramProblem tramProblem;
@@ -56,9 +59,7 @@ public:
 
 class Bees {
 public:
-    Bees(AlgorithmParameters parameters,
-         TramProblem tramProblem, double seed, Graph<Point2D> graph, Point2D depot, TramList& trams,
-         criterion problem_criterion);
+    Bees(AlgorithmParameters parameters, double seed, Point2D depot, TramList& trams, ProblemParameters problemParameters);
 
     // Perform the bee algorithm
     Bee run();
@@ -79,17 +80,10 @@ private:
 
     // Bee populations
     std::vector<Bee> solutions;
-    std::vector<Bee> workers;
-    std::vector<Bee> elites;
-
-    // Random number generator
-    std::mt19937_64 rng;
 
     // Problem
-    TramProblem tramProblem_;
-    criterion problem_criterion_;
+    ProblemParameters problemParameters_;
 
-    Graph<Point2D> graph_;
     double seed_;
     Point2D depot_;
 

@@ -66,7 +66,10 @@ int main()
     algorithmParameters.maxIterations    =100;
     algorithmParameters.beeLifeTime      = 10;
 
-    Bees bees(algorithmParameters, tramProblem, 2137, graph, depot, trams, max_transported);
+    ProblemParameters problemParameters(tram_amount, graph, tramProblem, stationList, max_transported);
+
+
+    Bees bees(algorithmParameters, bees_seed(), depot, trams, problemParameters);
     Bee best_bee = bees.run();
     std::cout << best_bee.quality * 100 << " % passengers transported" <<std::endl;
 

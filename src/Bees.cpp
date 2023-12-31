@@ -1,5 +1,7 @@
 #include "Bees.hpp"
 
+#include <utility>
+
 std::string_view CriterionToString(criterion c)
 {
     switch (c)
@@ -16,13 +18,8 @@ std::string_view CriterionToString(criterion c)
 
 
 Bees::Bees(
-          AlgorithmParameters parameters,       TramProblem tramProblem,
-          double seed,               Graph<Point2D> graph,
-          Point2D depot,                        TramList& trams,
-          criterion problem_criterion)
-        : tramProblem_(tramProblem),             seed_(seed),
-          graph_(graph),                         depot_(depot),
-          problem_criterion_(problem_criterion), parameters_(parameters){
+          AlgorithmParameters parameters, double seed,  Point2D depot, TramList& trams, ProblemParameters problemParameters)
+        : seed_(seed), depot_(depot), problemParameters_(std::move(problemParameters)), parameters_(parameters){
 
     // original bee becomes solution bee
     Bee firstBee;
@@ -38,7 +35,7 @@ Bees::Bees(
 
         // generate random solutions
         Bee bee;
-        bee.trams.gen_rand_trams(graph_, tram_amount, tram_length, depot_, generator);
+        bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator);
         bee.quality = calculateFitness(bee.trams);
         solutions.push_back(bee);
     }
@@ -71,7 +68,7 @@ void Bees::elites_search() {
             seed_ = seed_ + generator();
 
             tempBee.trams.deleteTram(generator() % tram_amount);
-            tempBee.trams.gen_rand_trams(graph_, 1, tram_length, depot_);
+            tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_);
             tempBee.quality = calculateFitness(tempBee.trams);
 
             if (tempBee.quality > newBee.quality){newBee = tempBee;}
@@ -92,7 +89,7 @@ void Bees::best_search() {
             seed_ = seed_ + generator();
 
             tempBee.trams.deleteTram(generator() % tram_amount);
-            tempBee.trams.gen_rand_trams(graph_, 1, tram_length, depot_);
+            tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_);
             tempBee.quality = calculateFitness(tempBee.trams);
 
             if (tempBee.quality > newBee.quality){newBee = tempBee;}
@@ -110,7 +107,7 @@ void Bees::scouts_search() {
 
         // generate random solutions
         Bee bee;
-        bee.trams.gen_rand_trams(graph_, tram_amount, tram_length, depot_, generator);
+        bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator);
         bee.quality = calculateFitness(bee.trams);
         solutions[i] = bee;
     }
@@ -120,19 +117,18 @@ void Bees::scouts_search() {
 
 float Bees::calculateFitness(TramList trams) {
     // Calculate the fitness (quality) of a Trams
-    std::tuple<float, uint32_t> objective = tramProblem_.run(trams);
+    std::tuple<float, uint32_t> objective = problemParameters_.tramProblem.run(trams);
 
-    switch (problem_criterion_) {
+    switch (problemParameters_.problemCriterion) {
         case max_transported:
             return std::get<0>(objective);
         case max_distance:
             return float(std::get<1>(objective));
+        case CRITERION_NR_ITEMS:
+            break;
     }
 }
 
-
-
-
-
-
-
+ProblemParameters::ProblemParameters(const int i, Graph<struct Point2D> graph, TramProblem problem, StationList list,
+                                     criterion criterion1) :tramCount(i), stations(std::move(graph)), tramProblem(std::move(problem)),
+                                                            stationList(std::move(list)), problemCriterion(criterion1){}
