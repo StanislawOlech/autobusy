@@ -18,7 +18,7 @@ std::tuple<float, uint32_t> TramProblem::run(TramList& trams) {
     for (int t = 0; t != time; t++){
 
         // populating tram stops
-        all_passengers += stationList.GenerateRandomPass(generator);
+        all_passengers += stationList.GenerateRandomPass(generator); // FIXME - change to parameter
 
         // packing people on trams and ride them to next stops
         std::tuple<uint32_t, uint32_t> objective = trams.stop(stationList);

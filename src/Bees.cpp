@@ -61,7 +61,7 @@ void Bees::elites_search() {
             Bee tempBee(solutions[i]);
 
             tempBee.trams.deleteTram(generator_() % tram_amount);
-            tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_);
+            tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_, generator_);
             tempBee.quality = calculateFitness(tempBee.trams);
 
             if (tempBee.quality > newBee.quality){
@@ -82,7 +82,7 @@ void Bees::best_search() {
             Bee tempBee(solutions[i]);
 
             tempBee.trams.deleteTram(generator_() % tram_amount);
-            tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_);
+            tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_, generator_);
             tempBee.quality = calculateFitness(tempBee.trams);
 
             if (tempBee.quality > newBee.quality){newBee = tempBee;}
