@@ -583,27 +583,37 @@ void GUI::DrawPassengers(bool *open)
 
 void GUI::DrawResultWindow()
 {
+    static decltype(std::chrono::high_resolution_clock::now()) start_time;
+    static decltype(std::chrono::high_resolution_clock::now()) end_time;
+
     if (ImGui::Button("Uruchom algorytm"))
     {
         ImGui::OpenPopup("Algorytm");
 
+        start_time = std::chrono::high_resolution_clock::now();
         future_y_value_ = std::async(std::launch::async, &RunAlgorithm);
-
     }
 
-    // Center window
+    ImGui::Text(u8"Poprzedni czas wykonania: %d sekund", execution_time / 100 );
+
+
+    /// Execution popup window
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
     if (ImGui::BeginPopupModal("Algorytm", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
     {
+        end_time = std::chrono::high_resolution_clock::now();
+
         ImGui::Text(u8"Proszę czekać");
+        ImGui::Text(u8"Upłynięty czas: %d sekund", std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time));
 
         if (future_y_value_.valid())
         {
             if (future_y_value_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
             {
                 y_value_ = future_y_value_.get();
+                execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
                 ImGui::CloseCurrentPopup();
             }
         }

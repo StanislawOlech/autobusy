@@ -91,7 +91,7 @@ int main(int, char**)
 
         /// Most of the sample code is in ImGui::ShowDemoWindow()!
         /// You can browse its code to learn more about Dear ImGui!
-        ImGui::ShowDemoWindow();
+//        ImGui::ShowDemoWindow();
 //        ImPlot::ShowDemoWindow();
 
         /// END USER CODE
