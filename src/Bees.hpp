@@ -53,6 +53,7 @@ class Bee {
 public:
     TramList trams;
     double quality;
+    uint8_t    age;
     friend bool operator< (const Bee& c1, const Bee& c2){return c1.quality < c2.quality;};
     friend bool operator> (const Bee& c1, const Bee& c2){return c1.quality > c2.quality;};
 };
@@ -73,6 +74,7 @@ private:
 
     void scouts_search();
 
+    void age();
 
     // Utility methods
     float calculateFitness(TramList trams);
@@ -93,6 +95,8 @@ private:
     Point2D depot_;
 
     std::mt19937 generator_;
+
+    uint32_t objectiveFunCalls = 0;
 };
 
 
