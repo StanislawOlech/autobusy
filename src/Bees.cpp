@@ -31,6 +31,7 @@ Bees::Bees(
         Bee bee;
         bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
         bee.quality = calculateFitness(bee.trams);
+        bee.age = 0;
         solutions.push_back(bee);
     }
 
@@ -45,6 +46,8 @@ Bee Bees::run() {
         best_search();
 
         scouts_search();
+
+        age();
 
         std::sort(solutions.begin(), solutions.end(), std::greater<>());
 
@@ -63,6 +66,7 @@ void Bees::elites_search() {
             tempBee.trams.deleteTram(generator_() % tram_amount);
             tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_, generator_);
             tempBee.quality = calculateFitness(tempBee.trams);
+            tempBee.age = 0;
 
             if (tempBee.quality > newBee.quality){
                 newBee = tempBee;
@@ -84,6 +88,7 @@ void Bees::best_search() {
             tempBee.trams.deleteTram(generator_() % tram_amount);
             tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_, generator_);
             tempBee.quality = calculateFitness(tempBee.trams);
+            tempBee.age = 0;
 
             if (tempBee.quality > newBee.quality){newBee = tempBee;}
         }
@@ -99,6 +104,7 @@ void Bees::scouts_search() {
         Bee bee;
         bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
         bee.quality = calculateFitness(bee.trams);
+        bee.age = 0;
         solutions[i] = bee;
     }
 }
@@ -117,7 +123,24 @@ float Bees::calculateFitness(TramList trams) {
         case CRITERION_NR_ITEMS:
             break;
     }
+
+    objectiveFunCalls ++;
+
     return std::numeric_limits<float>::min();
+}
+
+void Bees::age() {
+    for (int i=0; i != parameters_.solutionsNumber; i ++) {
+        if (solutions[i].age > parameters_.beeLifeTime){
+            // generate random solutions
+            Bee bee;
+            bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
+            bee.quality = calculateFitness(bee.trams);
+            bee.age = 0;
+            solutions[i] = bee;
+        }
+        solutions[i].age ++;
+    }
 }
 
 ProblemParameters::ProblemParameters(const int i, Graph<struct Point2D> graph, TramProblem problem, StationList list,
