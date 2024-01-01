@@ -66,7 +66,7 @@ private:
     int passenger_loss_rate = 2;
     criterion problemCriterion = max_transported;
 
-    std::chrono::milliseconds execution_time{};
+    float execution_time_ms{};
 };
 
 #endif //AUTOBUS_GUI_HPP

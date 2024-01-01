@@ -5,6 +5,7 @@
 #include <cmath>
 #include <charconv>
 #include <fstream>
+#include <sstream>
 
 
 void HelpMarker(const char* desc)
@@ -106,11 +107,36 @@ void GUI::DrawAlgorithm()
     {
         DrawArguments();
 
+        ImGui::Spacing();
+
         if (ImGui::Button(u8"Zapisz dane do plik"))
             SaveDataToFile();
+
+        ImGui::SameLine();
+
+        if (ImGui::Button(u8"Wczytaj dane z plik"))
+        {
+            try
+            {
+                LoadDataFromFile();
+            }
+            catch (const std::exception &e)
+            {
+                ImGui::OpenPopup(u8"Wczytywanie");
+            }
+        }
+
+        if (ImGui::BeginPopupModal(u8"Wczytywanie", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text(u8"Nie udało się poprawnie wczytać danych!");
+
+            if (ImGui::Button(u8"Ok"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
     }
-
-
 
     if (open_passengers)
         DrawPassengers(&open_passengers);
@@ -119,13 +145,21 @@ void GUI::DrawAlgorithm()
 void GUI::DrawResultPlot()
 {
     static std::vector<double> x_value;
-    x_value.resize(y_value_.size());
-    std::iota(x_value.begin(), x_value.end(), 1);
+
+    if (x_value.size() != y_value_.size())
+    {
+        x_value.resize(y_value_.size());
+        std::iota(x_value.begin(), x_value.end(), 0);
+    }
 
 
     if (ImPlot::BeginPlot("Wykres funkcji celu", {-1, -1})) {
         ImPlot::SetupAxes("Numer iteracji","Funkcja celu");
+//        ImPlot::SetupAxesLimits(-1,1,-1,1);
+//        ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 0 - 1, max_iter_ + 5);
+
         ImPlot::PlotLine("f(x)", x_value.data(), y_value_.data(), (int)y_value_.size());
+
         ImPlot::EndPlot();
     }
 }
@@ -411,7 +445,7 @@ void GUI::DrawPassengers(bool *open)
     static constexpr ImGuiChildFlags childFlags = ImGuiChildFlags_None;
     static constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_HorizontalScrollbar;
 
-    static int selected_station_id = -1;
+    static int selected_station_id = 0;
     static int selected_time = -1;
 
     char buffer[16];
@@ -594,7 +628,7 @@ void GUI::DrawResultWindow()
         future_y_value_ = std::async(std::launch::async, &RunAlgorithm);
     }
 
-    ImGui::Text(u8"Poprzedni czas wykonania: %d sekund", execution_time / 100 );
+    ImGui::Text(u8"Poprzedni czas wykonania: %.3f sekund", execution_time_ms);
 
 
     /// Execution popup window
@@ -606,14 +640,14 @@ void GUI::DrawResultWindow()
         end_time = std::chrono::high_resolution_clock::now();
 
         ImGui::Text(u8"Proszę czekać");
-        ImGui::Text(u8"Upłynięty czas: %d sekund", std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time));
+        ImGui::Text(u8"Upłyneło: %d sekund", std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time));
 
         if (future_y_value_.valid())
         {
             if (future_y_value_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
             {
                 y_value_ = future_y_value_.get();
-                execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+                execution_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.f;
                 ImGui::CloseCurrentPopup();
             }
         }
@@ -664,9 +698,48 @@ void GUI::SaveDataToFile()
         file << u8"Liczba zatrudnionych pszczół do obszaru elitarnego: " << elite_size_ << '\n';
 
         file << u8"Rozmiar sąsiectwa: " << neighborhood_size_ << '\n';
-        file << u8"Czas życia rozwiązania: " << neighborhood_size_ << '\n';
+        file << u8"Czas życia rozwiązania: " << lifetime_ << '\n';
         file << u8"Funkcja celu: " << problemCriterion << '\n';
 
+        file << "\n# Stacje\n";
+        for (auto point2D : stations_)
+        {
+            file << point2D.x << " " << point2D.y << "\n";
+        }
+
+        file << u8"\n# Połączenia\n";
+        for (int row = 0; row < stations_.size(); row++)
+        {
+            for (int column = 0; column < stations_.size(); column++)
+            {
+                std::size_t id = row * stations_.size() + column;
+
+                if (row > column)
+                    id = column * stations_.size() + row;
+
+                if (row == column || !connections_[id])
+                    file << "0 ";
+                else
+                    file << "1 ";
+            }
+            file << "\n";
+        }
+
+        file << u8"\n# Lista pasażerów\n";
+        for (auto& [idx, vec2d]: table3D)
+        {
+            file << idx << "=";
+            for (auto &vec : vec2d)
+            {
+                for (auto passenger : vec)
+                {
+                    file << passenger.count << "-" << passenger.dest_id << " ";
+                }
+                file << "|";
+            }
+            file << "\n";
+        }
+        file.flush();
     }
 
     if (ImGui::BeginPopupModal("Nieudany zapis", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
@@ -677,6 +750,114 @@ void GUI::SaveDataToFile()
         ImGui::EndPopup();
     }
 }
+
+void GUI::LoadDataFromFile()
+{
+    std::ifstream file{"Zapis.txt"};
+
+    if (!file.is_open())
+        ImGui::OpenPopup(u8"Nieudany odczyt");
+
+    std::string line{};
+
+    auto get_number = [&]() {
+        // skip empty line, skip comment line
+        while (std::getline(file, line) && (line.empty() || line.starts_with('#')))
+            ;
+
+        std::size_t pos = line.find(": ");
+        return std::abs(std::stoi(line.substr(pos + 2)));
+    };
+
+    autobus_number_ = get_number();
+    passenger_loss_rate = get_number();
+    max_iter_ = get_number();
+    solutions_number_ = get_number();
+    best_number_ = get_number();
+    elite_number_ = get_number();
+    best_size_ = get_number();
+    elite_size_ = get_number();
+    neighborhood_size_ = get_number();
+    lifetime_ = get_number();
+
+    int i = get_number();
+    if (i >= 0 && i < CRITERION_NR_ITEMS)
+        problemCriterion = static_cast<criterion>(i);
+    else
+        problemCriterion = static_cast<criterion>(0);
+
+    // skip empty line, skip comment line
+    while (std::getline(file, line) && (line.empty() || line.starts_with('#')))
+        ;
+
+    // Load stations
+    stations_.clear();
+    int x, y;
+    while (!line.empty())
+    {
+        std::size_t pos = line.find(' ');
+
+        x = std::stoi(line.substr(0, pos));
+        y = std::stoi(line.substr(pos + 1));
+
+        stations_.emplace_back(x, y);
+        std::getline(file, line);
+    }
+
+    // Load connections
+    while (std::getline(file, line) && (line.empty() || line.starts_with('#')))
+        ;
+
+    connections_.clear();
+    while (!line.empty())
+    {
+        std::string value{};
+        std::istringstream iss{line};
+        while (std::getline(iss, value, ' '))
+        {
+            x = std::stoi(value);
+            connections_.push_back(x);
+        }
+        std::getline(file, line);
+    }
+
+
+    // Load passengers group
+    while (std::getline(file, line) && (line.empty() || line.starts_with('#')))
+        ;
+
+    table3D.clear();
+    std::string vec2d{};
+    std::string vec{};
+    std::string passenger{};
+    std::size_t idx{};
+
+    while (!line.empty())
+    {
+        auto idx_pos = line.find('=');
+        idx = std::abs(std::stoi(line.substr(0, idx_pos)));
+
+        std::istringstream iss{line.substr(idx_pos + 1)};
+        while (std::getline(iss, vec2d, '|'))
+        {
+            std::vector<PassengerGui> vecPassengers{};
+
+            std::istringstream iss2{vec2d};
+            while (std::getline(iss2, vec, ' '))
+            {
+                auto pos2 = vec.find('-');
+                int count = std::stoi(vec.substr(0, pos2));
+                int dest = std::stoi(vec.substr(pos2 + 1));
+
+                vecPassengers.emplace_back(count, dest);
+            }
+            table3D[idx].push_back(std::move(vecPassengers));
+        }
+        std::getline(file, line);
+    }
+
+}
+
 
 std::vector<double> RunAlgorithm()
 {
@@ -715,9 +896,9 @@ std::vector<double> RunAlgorithm()
 
     std::random_device bees_seed{};
     AlgorithmParameters algorithmParameters{};
-    algorithmParameters.solutionsNumber  = 20;
-    algorithmParameters.bestCount        = 10;
-    algorithmParameters.eliteCount       =  5;
+    algorithmParameters.solutionsNumber  = 25;
+    algorithmParameters.bestCount        = 12;
+    algorithmParameters.eliteCount       =  7;
     algorithmParameters.bestRecruits     =  5;
     algorithmParameters.eliteRecruits    = 10;
     algorithmParameters.neighborhoodSize = 10;
