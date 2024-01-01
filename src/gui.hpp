@@ -55,6 +55,7 @@ private:
 
     int max_iter_ = 1;
     int autobus_number_ = 1;
+    int simulated_time_ = 1;
 
     int solutions_number_ = 1;
     int elite_number_ = 1;
@@ -63,10 +64,10 @@ private:
     int best_size_ = 1;
     int neighborhood_size_ = 5;
     int lifetime_= 10;
-    int passenger_loss_rate = 2;
-    criterion problemCriterion = max_transported;
+    int passenger_loss_rate_ = 2;
+    criterion problem_criterion_ = max_transported;
 
-    float execution_time_ms{};
+    float execution_time_ms_{};
 };
 
 #endif //AUTOBUS_GUI_HPP

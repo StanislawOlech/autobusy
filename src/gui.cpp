@@ -315,7 +315,8 @@ void GUI::DrawArguments()
     ImGui::PushItemWidth(120);
 
     MakeInputPositive(u8"Liczba autobusów", u8"Liczba autbusów musi być dodatnia", &autobus_number_);
-    MakeInputPositive(u8"Współczynnik straty pasażerów", u8"Współczynnik musi być dodatni", &passenger_loss_rate);
+    MakeInputPositive(u8"Czas symulacji", u8"Czas symulacji musi być dodatni", &simulated_time_);
+    MakeInputPositive(u8"Współczynnik straty pasażerów", u8"Współczynnik musi być dodatni", &passenger_loss_rate_);
     // TODO - dodać jakieś wyjaśnienie
 
     MakeInputPositive(u8"Liczba iteracji", u8"Liczba iteracji musi być dodatnia", &max_iter_);
@@ -408,17 +409,17 @@ void GUI::DrawArguments()
 
     ImGui::PushItemWidth(145);
 
-    auto preview_text = CriterionToString(problemCriterion);
+    auto preview_text = CriterionToString(problem_criterion_);
 
     if (ImGui::BeginCombo(u8"Funkcja celu", preview_text.data()))
     {
         for (int i = 0; i < CRITERION_NR_ITEMS; ++i)
         {
             auto text = CriterionToString(static_cast<criterion>(i));
-            const bool is_selected = (problemCriterion == i);
+            const bool is_selected = (problem_criterion_ == i);
 
             if (ImGui::Selectable(text.data(), is_selected))
-                problemCriterion = static_cast<criterion>(i);
+                problem_criterion_ = static_cast<criterion>(i);
 
             if (is_selected)
                 ImGui::SetItemDefaultFocus();
@@ -628,7 +629,7 @@ void GUI::DrawResultWindow()
         future_y_value_ = std::async(std::launch::async, &RunAlgorithm);
     }
 
-    ImGui::Text(u8"Poprzedni czas wykonania: %.3f sekund", execution_time_ms);
+    ImGui::Text(u8"Poprzedni czas wykonania: %.3f sekund", execution_time_ms_);
 
 
     /// Execution popup window
@@ -647,7 +648,7 @@ void GUI::DrawResultWindow()
             if (future_y_value_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
             {
                 y_value_ = future_y_value_.get();
-                execution_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.f;
+                execution_time_ms_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.f;
                 ImGui::CloseCurrentPopup();
             }
         }
@@ -671,10 +672,25 @@ ProblemParameters GUI::ExportProblem() const
 {
     Graph<Point2D> graph = ConvertGuiGraphToGraph(connections_, stations_);
 
-//    TramProblem tramProblem{};
     PassengerTable::Table3D passengerTable = ConvertGuiTableToTable3D(table3D, stations_);
-    // TODO finish
+
+//    uint32_t all_passengers = CountPassengers();
+    StationList stationList{passengerTable, static_cast<uint32_t>(passenger_loss_rate_)};
+
+    for (auto point2d : stations_)
+        stationList.Create(point2d);
+
+    TramProblem tramProblem{simulated_time_, stationList};
+
+    return {
+        autobus_number_,
+        graph,
+        tramProblem,
+        stationList,
+        problem_criterion_
+    };
 }
+
 
 void GUI::SaveDataToFile()
 {
@@ -686,7 +702,8 @@ void GUI::SaveDataToFile()
     {
         file << "# Dane algorytmu\n";
         file << u8"Liczba autobusów: "  << autobus_number_ << '\n';
-        file << u8"Współczynnik straty autobusów: " << passenger_loss_rate << '\n';
+        file << u8"Czas symulacji: "  << simulated_time_ << '\n';
+        file << u8"Współczynnik straty autobusów: " << passenger_loss_rate_ << '\n';
 
         file << u8"Liczba iteracji: " << max_iter_ << '\n';
         file << u8"Liczba rozwiązań: " << solutions_number_ << '\n';
@@ -699,7 +716,7 @@ void GUI::SaveDataToFile()
 
         file << u8"Rozmiar sąsiectwa: " << neighborhood_size_ << '\n';
         file << u8"Czas życia rozwiązania: " << lifetime_ << '\n';
-        file << u8"Funkcja celu: " << problemCriterion << '\n';
+        file << u8"Funkcja celu: " << problem_criterion_ << '\n';
 
         file << "\n# Stacje\n";
         for (auto point2D : stations_)
@@ -770,7 +787,8 @@ void GUI::LoadDataFromFile()
     };
 
     autobus_number_ = get_number();
-    passenger_loss_rate = get_number();
+    simulated_time_ = get_number();
+    passenger_loss_rate_ = get_number();
     max_iter_ = get_number();
     solutions_number_ = get_number();
     best_number_ = get_number();
@@ -782,9 +800,9 @@ void GUI::LoadDataFromFile()
 
     int i = get_number();
     if (i >= 0 && i < CRITERION_NR_ITEMS)
-        problemCriterion = static_cast<criterion>(i);
+        problem_criterion_ = static_cast<criterion>(i);
     else
-        problemCriterion = static_cast<criterion>(0);
+        problem_criterion_ = static_cast<criterion>(0);
 
     // skip empty line, skip comment line
     while (std::getline(file, line) && (line.empty() || line.starts_with('#')))
