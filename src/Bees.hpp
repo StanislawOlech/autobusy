@@ -84,6 +84,7 @@ private:
 
     // Bee populations
     std::vector<Bee> solutions;
+    Bee best_bee_;
 
     // in each iteration, for generating plot
     std::vector<double> bestValueIteration_;
