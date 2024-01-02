@@ -155,8 +155,11 @@ void GUI::DrawResultPlot()
 
     if (ImPlot::BeginPlot("Wykres funkcji celu", {-1, -1})) {
         ImPlot::SetupAxes("Numer iteracji","Funkcja celu");
+
 //        ImPlot::SetupAxesLimits(-1,1,-1,1);
-//        ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 0 - 1, max_iter_ + 5);
+//        ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, -1, x_value.size() + 5);
+//        if (!y_value_.empty())
+//            ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, -1, *y_value_.rbegin() + 2);
 
         ImPlot::PlotLine("f(x)", x_value.data(), y_value_.data(), (int)y_value_.size());
 
@@ -626,10 +629,12 @@ void GUI::DrawResultWindow()
         ImGui::OpenPopup("Algorytm");
 
         start_time = std::chrono::high_resolution_clock::now();
-        future_y_value_ = std::async(std::launch::async, &RunAlgorithm);
+        future_bees = std::async(std::launch::async, &RunAlgorithm);
     }
 
     ImGui::Text(u8"Poprzedni czas wykonania: %.3f sekund", execution_time_ms_);
+
+    ImGui::Text(u8"Liczba wyliczeń funkcji celu: %d", objectiveFunCalls_);
 
 
     /// Execution popup window
@@ -643,11 +648,13 @@ void GUI::DrawResultWindow()
         ImGui::Text(u8"Proszę czekać");
         ImGui::Text(u8"Upłyneło: %d sekund", std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time));
 
-        if (future_y_value_.valid())
+        if (future_bees.valid())
         {
-            if (future_y_value_.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
+            if (future_bees.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
             {
-                y_value_ = future_y_value_.get();
+                Bees bees = future_bees.get(); // it moves value
+                y_value_ = bees.getResultIteration();
+                objectiveFunCalls_ = bees.getObjectiveFunCalls();
                 execution_time_ms_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.f;
                 ImGui::CloseCurrentPopup();
             }
@@ -877,7 +884,7 @@ void GUI::LoadDataFromFile()
 }
 
 
-std::vector<double> RunAlgorithm()
+Bees RunAlgorithm()
 {
     Point2D depot{0, 0};
 
@@ -929,7 +936,7 @@ std::vector<double> RunAlgorithm()
 
     bees.run();
 
-    return bees.getResultIteration();
+    return bees;
 }
 
 

@@ -17,7 +17,7 @@ void MakeWarningPopup(const char* name, const char* text);
 
 void MakeInputPositive(const char* name, const char* error_text, int *number);
 
-std::vector<double> RunAlgorithm();
+Bees RunAlgorithm();
 
 
 class GUI
@@ -46,7 +46,8 @@ public:
 
 private:
     std::vector<double> y_value_;
-    std::future<std::vector<double>> future_y_value_;
+    uint32_t objectiveFunCalls_ = 0;
+    std::future<Bees> future_bees; // Change to bees
 
     std::vector<Point2D> stations_ = {{0, 0}};
     std::vector<uint8_t> connections_{1}; // Cant be vector<bool> due to specialization
