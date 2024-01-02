@@ -26,3 +26,4 @@ target_link_libraries(autobus PUBLIC autobusLib)
 
 add_executable(autobusGui main_gui.cpp)
 target_link_libraries(autobusGui PUBLIC autobusLibGui)
+set_target_properties( autobusGui PROPERTIES RUNTIME_OUTPUT_DIRECTORY ../build)

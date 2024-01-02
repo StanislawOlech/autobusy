@@ -62,6 +62,7 @@ if(NOT imgui_POPULATED)
 
     # copy font
     configure_file(${imgui_SOURCE_DIR}/misc/fonts/Roboto-Medium.ttf  ${CMAKE_BINARY_DIR} COPYONLY)
+    configure_file(${imgui_SOURCE_DIR}/misc/fonts/Roboto-Medium.ttf  ../../build COPYONLY)
 endif ()
 
 # ==========================================

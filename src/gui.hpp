@@ -17,7 +17,7 @@ void MakeWarningPopup(const char* name, const char* text);
 
 void MakeInputPositive(const char* name, const char* error_text, int *number);
 
-Bees RunAlgorithm();
+Bees RunAlgorithm(AlgorithmParameters algorithmParameters, ProblemParameters problemParameters);
 
 
 class GUI

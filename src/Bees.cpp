@@ -55,7 +55,11 @@ Bee Bees::run() {
         if (solutions[0].quality > best_bee_.quality)
             best_bee_ = solutions[0];
 
-        bestValueIteration_.push_back(best_bee_.quality * 100.f);
+        // TODO - for final project do best of all time
+//        bestValueIteration_.push_back(best_bee_.quality * 100.f);
+
+        // TODO - delete for final project
+        bestValueIteration_.push_back(solutions[0].quality * 100.f);
     }
     return solutions[0];
 }

@@ -629,7 +629,7 @@ void GUI::DrawResultWindow()
         ImGui::OpenPopup("Algorytm");
 
         start_time = std::chrono::high_resolution_clock::now();
-        future_bees = std::async(std::launch::async, &RunAlgorithm);
+        future_bees = std::async(std::launch::async, &RunAlgorithm, ExportAlgorithm(), ExportProblem());
     }
 
     ImGui::Text(u8"Poprzedni czas wykonania: %.3f sekund", execution_time_ms_);
@@ -811,9 +811,10 @@ void GUI::LoadDataFromFile()
     else
         problem_criterion_ = static_cast<criterion>(0);
 
+    std::getline(file, line);
     // skip empty line, skip comment line
-    while (std::getline(file, line) && (line.empty() || line.starts_with('#')))
-        ;
+    while (line.empty() || line.starts_with('#'))
+        std::getline(file, line);
 
     // Load stations
     stations_.clear();
@@ -830,8 +831,8 @@ void GUI::LoadDataFromFile()
     }
 
     // Load connections
-    while (std::getline(file, line) && (line.empty() || line.starts_with('#')))
-        ;
+    while (line.empty() || line.starts_with('#'))
+        std::getline(file, line);
 
     connections_.clear();
     while (!line.empty())
@@ -848,8 +849,8 @@ void GUI::LoadDataFromFile()
 
 
     // Load passengers group
-    while (std::getline(file, line) && (line.empty() || line.starts_with('#')))
-        ;
+    while (line.empty() || line.starts_with('#'))
+        std::getline(file, line);
 
     table3D.clear();
     std::string vec2d{};
@@ -884,55 +885,42 @@ void GUI::LoadDataFromFile()
 }
 
 
-Bees RunAlgorithm()
+Bees RunAlgorithm(AlgorithmParameters algorithmParameters, ProblemParameters problemParameters)
 {
-    Point2D depot{0, 0};
-
-    // generating graph and stations
-    Graph<Point2D> graph{};
-    PassengerTable::Table3D table3D;
-    StationList stationList{table3D};
-
-    for (int x = 0; x != n; x++){
-        for (int y = 0; y != m; y++){
-            if (y + 1 < m){
-                graph.AddEdge({x, y}, {x, y + 1});
-                graph.AddEdge({x, y + 1}, {x, y});
-            }
-            if (x + 1 < n){
-                graph.AddEdge({x, y}, {x + 1, y});
-                graph.AddEdge({x + 1, y}, {x, y});
-            }
-            if (x + 1 < n && y + 1 < m){
-                graph.AddEdge({x, y}, {x + 1, y + 1});
-                graph.AddEdge({x + 1, y + 1}, {x, y});
-                graph.AddEdge({x + 1, y}, {x, y + 1});
-                graph.AddEdge({x, y + 1}, {x + 1, y});
-            }
-            stationList.Create({x, y});
-        }
-    }
-
-    // random trams generation
-    TramList trams;
-    trams.gen_rand_trams(graph, tram_amount, tram_length, depot);
-
-    TramProblem tramProblem(time_itt, stationList);
-
+    constexpr Point2D depot{0, 0};
     std::random_device bees_seed{};
-    AlgorithmParameters algorithmParameters{};
-    algorithmParameters.solutionsNumber  = 25;
-    algorithmParameters.bestCount        = 12;
-    algorithmParameters.eliteCount       =  7;
-    algorithmParameters.bestRecruits     =  5;
-    algorithmParameters.eliteRecruits    = 10;
-    algorithmParameters.neighborhoodSize = 10;
-    algorithmParameters.maxIterations    =100;
-    algorithmParameters.beeLifeTime      = 10;
 
-    ProblemParameters problemParameters(tram_amount, graph, tramProblem, stationList, max_transported);
+//    // generating graph and stations
+//    Graph<Point2D> graph{};
+//    PassengerTable::Table3D table3D;
+//    StationList stationList{table3D};
+//
+//    for (int x = 0; x != n; x++){
+//        for (int y = 0; y != m; y++){
+//            if (y + 1 < m){
+//                graph.AddEdge({x, y}, {x, y + 1});
+//                graph.AddEdge({x, y + 1}, {x, y});
+//            }
+//            if (x + 1 < n){
+//                graph.AddEdge({x, y}, {x + 1, y});
+//                graph.AddEdge({x + 1, y}, {x, y});
+//            }
+//            if (x + 1 < n && y + 1 < m){
+//                graph.AddEdge({x, y}, {x + 1, y + 1});
+//                graph.AddEdge({x + 1, y + 1}, {x, y});
+//                graph.AddEdge({x + 1, y}, {x, y + 1});
+//                graph.AddEdge({x, y + 1}, {x + 1, y});
+//            }
+//            stationList.Create({x, y});
+//        }
+//    }
+//
+//    TramProblem tramProblem(time_itt, stationList);
+//
+//
+//    ProblemParameters problemParameters(tram_amount, graph, tramProblem, stationList, max_transported);
 
-    Bees bees(algorithmParameters, bees_seed(), depot, problemParameters);
+    Bees bees(algorithmParameters, bees_seed(), depot, std::move(problemParameters));
 
     bees.run();
 
