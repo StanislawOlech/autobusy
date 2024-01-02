@@ -23,6 +23,7 @@ Bees::Bees(
         : seed_(seed), depot_(depot), problemParameters_(std::move(problemParameters)), parameters_(parameters),
           generator_{seed_}
 {
+    tram_amount = problemParameters_.tramCount;
     solutions.reserve(parameters.solutionsNumber);
 
     // Initialize rest of solutions bees randomly
@@ -61,7 +62,7 @@ Bee Bees::run() {
         // TODO - delete for final project
         bestValueIteration_.push_back(solutions[0].quality * 100.f);
     }
-    return solutions[0];
+    return best_bee_;
 }
 
 void Bees::elites_search() {

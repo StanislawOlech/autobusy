@@ -67,7 +67,7 @@ public:
 
     [[nodiscard]] std::vector<double> getResultIteration() const { return bestValueIteration_; }
 
-    [[nodiscard]] uint32_t getObjectiveFunCalls() { return objectiveFunCalls; }
+    [[nodiscard]] uint32_t getObjectiveFunCalls() const { return objectiveFunCalls; }
 
 private:
     void elites_search();
@@ -96,6 +96,7 @@ private:
 
     uint32_t seed_;
     Point2D depot_;
+    int tram_amount;
 
     std::mt19937 generator_;
 
