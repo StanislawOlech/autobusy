@@ -32,6 +32,7 @@ std::tuple<float, uint32_t> TramProblem::run(TramList& trams) {
 
     trams = new_trams;
     stationList.Clear();
+    stationList.Restart(); // Need to clear time in PassengerTable, might by wrong
 
     return {float(transported) / float(all_passengers), distance};
 }

@@ -74,6 +74,8 @@ struct PassengerTable
 
     void UpdateTime() { ++curr_time; }
 
+    void RestartTime() { curr_time = 0; }
+
 private:
     Table3D table_;
     std::size_t curr_time = 0;
@@ -97,6 +99,8 @@ public:
     void delatePassengers(Point2D position, Point2D destination)  { stations_.at(position).DeletePassengers(destination); }
 
     void Update();
+
+    void Restart();
 
     void Clear();
 

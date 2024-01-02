@@ -129,3 +129,9 @@ void StationList::Clear() {
         pair.second.Clear();
     }
 }
+
+void StationList::Restart()
+{
+    passengerTable_.RestartTime();
+    Update();
+}
