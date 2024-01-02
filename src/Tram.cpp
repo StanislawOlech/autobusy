@@ -80,7 +80,7 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
 
 
 void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot,
-                              std::mt19937 generator) {
+                              std::mt19937& generator) {
     /**
      * Function to random trams
      *

@@ -35,7 +35,7 @@ public:
     explicit TramList(uint32_t longest_voyage_=3) :longest_voyage(longest_voyage_){};
     TramList(TramList const &other) = default;
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot);
-    void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937 generator);
+    void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937& generator);
     std::tuple<uint32_t, uint32_t> stop(StationList& stationList);
     void deleteTram(std::size_t position);
 private:
