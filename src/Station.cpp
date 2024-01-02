@@ -61,16 +61,27 @@ std::span<Passenger> PassengerTable::operator()(Point2D station)
     return {vec2d[curr_time]};
 }
 
-StationList::StationList(PassengerTable::Table3D passengerTable, uint32_t divider):
-        stations_{}, passengerTable_{std::move(passengerTable)} , passenger_divider_{divider}
+StationList::StationList(const PassengerTable::Table3D &passengerTable, uint32_t divider):
+        stations_{}, passengerTable_{passengerTable} , passenger_divider_{divider}
 {
+    passenger_count_ = 0;
+    for (auto &[point_start, vec2d] : passengerTable)
+    {
+        for (auto &vec : vec2d)
+        {
+            for (auto [start, end, count] : vec)
+            {
+                passenger_count_ += count;
+            }
+        }
+    }
 
 }
 
 void StationList::Create(Point2D position)
 {
     Station station{position};
-    //station.AddPassengers(passengerTable_(position));
+    station.AddPassengers(passengerTable_(position));
 
     stations_.emplace(position, std::move(station));
 }
@@ -82,7 +93,7 @@ void StationList::Update()
     for (auto &[point, station]: stations_)
     {
         station.DividePassengers(passenger_divider_);
-        //station.AddPassengers(passengerTable_(point));
+        station.AddPassengers(passengerTable_(point));
     }
 }
 

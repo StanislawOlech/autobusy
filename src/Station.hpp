@@ -88,7 +88,7 @@ class StationList
 {
 public:
 
-    explicit StationList(PassengerTable::Table3D passengerTable, uint32_t divider = 2);
+    explicit StationList(const PassengerTable::Table3D &passengerTable, uint32_t divider = 2);
 
     void Create(Point2D position);
 
@@ -102,11 +102,14 @@ public:
 
     uint32_t GenerateRandomPass(std::mt19937 generator, uint32_t maxPassengers = 100, uint32_t groups = 10);
 
+    uint32_t GetPassengersCount() const { return passenger_count_; }
+
 private:
     std::unordered_map<Point2D, Station> stations_;
 
     PassengerTable passengerTable_;
     uint32_t passenger_divider_;
+    uint32_t passenger_count_;
 };
 
 #endif //AUTOBUS_STATION_HPP
