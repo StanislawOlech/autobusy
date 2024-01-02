@@ -67,6 +67,8 @@ public:
 
     [[nodiscard]] std::vector<double> getResultIteration() const { return bestValueIteration_; }
 
+    [[nodiscard]] uint32_t getObjectiveFunCalls() { return objectiveFunCalls; }
+
 private:
     void elites_search();
 
