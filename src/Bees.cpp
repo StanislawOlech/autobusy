@@ -118,13 +118,15 @@ void Bees::scouts_search() {
 float Bees::calculateFitness(TramList trams) {
     objectiveFunCalls ++;
     // Calculate the fitness (quality) of a Trams
-    std::tuple<float, uint32_t> objective = problemParameters_.tramProblem.run(trams);
+    std::tuple<float, uint32_t, float> objective = problemParameters_.tramProblem.run(trams);
 
     switch (problemParameters_.problemCriterion) {
         case max_transported:
             return std::get<0>(objective);
         case max_distance:
             return float(std::get<1>(objective));
+        case most_efficient:
+            return std::get<2>(objective);
         case CRITERION_NR_ITEMS:
             break;
     }
