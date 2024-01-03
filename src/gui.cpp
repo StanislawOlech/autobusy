@@ -890,40 +890,9 @@ Bees RunAlgorithm(AlgorithmParameters algorithmParameters, ProblemParameters pro
     constexpr Point2D depot{0, 0};
     std::random_device bees_seed{};
 
-//    // generating graph and stations
-//    Graph<Point2D> graph{};
-//    PassengerTable::Table3D table3D;
-//    StationList stationList{table3D};
-//
-//    for (int x = 0; x != n; x++){
-//        for (int y = 0; y != m; y++){
-//            if (y + 1 < m){
-//                graph.AddEdge({x, y}, {x, y + 1});
-//                graph.AddEdge({x, y + 1}, {x, y});
-//            }
-//            if (x + 1 < n){
-//                graph.AddEdge({x, y}, {x + 1, y});
-//                graph.AddEdge({x + 1, y}, {x, y});
-//            }
-//            if (x + 1 < n && y + 1 < m){
-//                graph.AddEdge({x, y}, {x + 1, y + 1});
-//                graph.AddEdge({x + 1, y + 1}, {x, y});
-//                graph.AddEdge({x + 1, y}, {x, y + 1});
-//                graph.AddEdge({x, y + 1}, {x + 1, y});
-//            }
-//            stationList.Create({x, y});
-//        }
-//    }
-//
-//    TramProblem tramProblem(time_itt, stationList);
-//
-//
-//    ProblemParameters problemParameters(tram_amount, graph, tramProblem, stationList, max_transported);
-
     Bees bees(algorithmParameters, bees_seed(), depot, std::move(problemParameters));
 
     bees.run();
-
     return bees;
 }
 
