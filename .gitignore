@@ -34,6 +34,9 @@
 # Fonts
 *.ttf
 
+# Size of imgui app
+build/imgui.ini
+
 .vscode
 cmake-build-debug
 cmake-build-release
