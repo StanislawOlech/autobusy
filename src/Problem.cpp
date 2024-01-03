@@ -1,5 +1,7 @@
 #include "Problem.hpp"
 
+#include <iostream>
+
 
 TramProblem::TramProblem(int time_, StationList& stationList_):
 time(time_), stationList(stationList_){}
@@ -12,13 +14,10 @@ std::tuple<float, uint32_t> TramProblem::run(TramList& trams) {
     uint32_t all_passengers   = stationList.GetPassengersCount();
     uint32_t distance         = 0;
 
-//    std::mt19937 generator(random_map_seed);
 
 
     for (int t = 0; t != time; t++){
-
-        // populating tram stops
-//        all_passengers += stationList.GenerateRandomPass(generator); // FIXME - change to parameter
+//        stationList.DebugPrint();
 
         // packing people on trams and ride them to next stops
         std::tuple<uint32_t, uint32_t> objective = trams.stop(stationList);
@@ -30,9 +29,10 @@ std::tuple<float, uint32_t> TramProblem::run(TramList& trams) {
         stationList.Update();
     }
 
+
     trams = new_trams;
     stationList.Clear();
-    stationList.Restart(); // Need to clear time in PassengerTable, might by wrong
+    stationList.Restart();
 
     return {float(transported) / float(all_passengers), distance};
 }

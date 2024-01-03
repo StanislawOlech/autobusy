@@ -23,6 +23,8 @@ public:
     void set_path(std::vector<Point2D> new_path) {path = std::move(new_path);};
     void set_direction(bool reverse_){reverse = reverse_;};
     [[nodiscard]] std::vector<Point2D> get() const {return (path);};
+
+    void DebugPrint() const;
 private:
     std::vector<Point2D> path;
     bool reverse  = false;
@@ -34,10 +36,16 @@ class TramList{
 public:
     explicit TramList(uint32_t longest_voyage_=3) :longest_voyage(longest_voyage_){};
     TramList(TramList const &other) = default;
+
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot);
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937& generator);
+
     std::tuple<uint32_t, uint32_t> stop(StationList& stationList);
+
     void deleteTram(std::size_t position);
+
+    void DebugPrint() const;
+
 private:
     void update();
     std::tuple<uint32_t, uint32_t> transfers(StationList& stationList, int traveled, Point2D station, Point2D orginalpoint);

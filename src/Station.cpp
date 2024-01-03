@@ -1,5 +1,8 @@
 #include "Station.hpp"
 
+#include <iostream>
+
+
 bool EqualStartEnd(Passenger passenger1, Passenger passenger2)
 {
     return passenger1.start == passenger2.start && passenger1.end == passenger2.end;
@@ -40,13 +43,23 @@ void Station::AddPassengers(std::span<Passenger> new_passengers)
         return;
 
     for (auto [start, end, count] : new_passengers)
+    {
         passengers_[end] += count;
 
+//        std::cout << "[Added] Start: " << start << " end: " << end << ", count=" << count << "\n";
+    }
 }
 
 std::ostream& operator<<(std::ostream& oss, Station station) {
     oss << station.position_;
     return oss;
+}
+
+void Station::DebugPrint() const
+{
+    std::cout << "Pos: " << position_ << ", passengers:\n";
+    for (auto &[dest, count] : passengers_)
+        std::cout << "\tDest " << dest << ", count=" << count << "\n";
 }
 
 std::span<Passenger> PassengerTable::operator()(Point2D station)
@@ -59,6 +72,26 @@ std::span<Passenger> PassengerTable::operator()(Point2D station)
         return {};
 
     return {vec2d[curr_time]};
+}
+
+void PassengerTable::DebugPrint() const
+{
+    std::cout << "PassengerTable\n";
+    std::cout << "--------------------------\n";
+    std::cout << "Current time: " << curr_time << "\n";
+    for (auto &[point_start, vec2d] : table_)
+    {
+        int on_time = 0;
+        for (auto &vec : vec2d)
+        {
+            for (auto [start, end, count] : vec)
+                std::cout << "Time: " << on_time << " start: " << start << ", end: " << end << ", count: " << count << "\n";
+
+            std::cout << "\n";
+            ++on_time;
+        }
+    }
+    std::cout << "--------------------------" << std::endl;
 }
 
 StationList::StationList(const PassengerTable::Table3D &passengerTable, uint32_t divider):
@@ -132,6 +165,23 @@ void StationList::Clear() {
 
 void StationList::Restart()
 {
+//    std::cout << "Station List restart" << std::endl;
+
     passengerTable_.RestartTime();
-    Update();
+    for (auto &[point, station]: stations_)
+    {
+        station.DividePassengers(passenger_divider_);
+        station.AddPassengers(passengerTable_(point));
+    }
+}
+
+void StationList::DebugPrint() const
+{
+    passengerTable_.DebugPrint();
+
+    std::cout << "======\n";
+    std::cout << "Passengers on stations" << std::endl;
+    for (const auto&[pos, station] : stations_)
+        station.DebugPrint();
+    std::cout << "======\n";
 }

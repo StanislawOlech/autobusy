@@ -51,6 +51,8 @@ public:
 
     void Clear(){passengers_.clear();};
 
+    void DebugPrint() const;
+
 private:
     Point2D position_;
     std::unordered_map<Point2D, uint32_t> passengers_;
@@ -75,6 +77,8 @@ struct PassengerTable
     void UpdateTime() { ++curr_time; }
 
     void RestartTime() { curr_time = 0; }
+
+    void DebugPrint() const;
 
 private:
     Table3D table_;
@@ -107,6 +111,8 @@ public:
     uint32_t GenerateRandomPass(std::mt19937 generator, uint32_t maxPassengers = 100, uint32_t groups = 10);
 
     uint32_t GetPassengersCount() const { return passenger_count_; }
+
+    void DebugPrint() const;
 
 private:
     std::unordered_map<Point2D, Station> stations_;
