@@ -40,7 +40,7 @@ public:
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot);
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937& generator);
 
-    std::tuple<uint32_t, uint32_t> stop(StationList& stationList);
+    std::tuple<uint32_t, uint32_t, uint32_t> stop(StationList& stationList);
 
     void deleteTram(std::size_t position);
 
@@ -48,7 +48,7 @@ public:
 
 private:
     void update();
-    std::tuple<uint32_t, uint32_t> transfers(StationList& stationList, int traveled, Point2D station, Point2D orginalpoint);
+    std::tuple<uint32_t, uint32_t, uint32_t> transfers(StationList& stationList, int traveled, Point2D station, Point2D orginalpoint);
 
     uint32_t longest_voyage;
     std::list<Tram> trams;

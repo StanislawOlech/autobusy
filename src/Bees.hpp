@@ -13,6 +13,7 @@
 enum criterion {
     max_transported = 0,
     max_distance = 1,
+    most_efficient = 2,
     CRITERION_NR_ITEMS
 };
 

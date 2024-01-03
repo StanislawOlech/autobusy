@@ -42,8 +42,8 @@ Point2D depot{0, 0};
     int all = 0;
     std::map<int, int> answers;
 
-    for (int x = 0; x < 1000; x ++){
-        std::tuple<float, uint32_t> objective = tramProblem.run(trams);
+    for (int x = 0; x < 100; x ++){
+        std::tuple<float, uint32_t, float> objective = tramProblem.run(trams);
         uint32_t distance = std::get<1>(objective);
 
         answers[int(distance)] ++;

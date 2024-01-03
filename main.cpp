@@ -21,19 +21,20 @@ int main()
 
     for (int x = 0; x != n; x++){
         for (int y = 0; y != m; y++){
-            if (y + 1 < m){
-                graph.AddEdge({x, y}, {x, y + 1});
-                graph.AddEdge({x, y + 1}, {x, y});
+            int dist = 1;
+            if (y + dist < m){
+                graph.AddEdge({x, y}, {x, y + dist});
+                graph.AddEdge({x, y + dist}, {x, y});
             }
-            if (x + 1 < n){
-                graph.AddEdge({x, y}, {x + 1, y});
-                graph.AddEdge({x + 1, y}, {x, y});
+            if (x + dist < n){
+                graph.AddEdge({x, y}, {x + dist, y});
+                graph.AddEdge({x + dist, y}, {x, y});
             }
-            if (x + 1 < n && y + 1 < m){
-                graph.AddEdge({x, y}, {x + 1, y + 1});
-                graph.AddEdge({x + 1, y + 1}, {x, y});
-                graph.AddEdge({x + 1, y}, {x, y + 1});
-                graph.AddEdge({x, y + 1}, {x + 1, y});
+            if (x + dist < n && y + dist < m){
+                graph.AddEdge({x, y}, {x + dist, y + dist});
+                graph.AddEdge({x + dist, y + dist}, {x, y});
+                graph.AddEdge({x + dist, y}, {x, y + dist});
+                graph.AddEdge({x, y + dist}, {x + dist, y});
             }
             stationList.Create({x, y});
         }
@@ -46,8 +47,8 @@ int main()
     TramProblem tramProblem(time_itt, stationList);
 
     // objective function params
-    std::tuple<float, uint32_t> objective = tramProblem.run(trams);
-    float transported = std::get<0>(objective);
+    std::tuple<float, uint32_t, float> objective = tramProblem.run(trams);
+    float transported = std::get<2>(objective);
     uint32_t distance = std::get<1>(objective);
 
 
@@ -66,7 +67,7 @@ int main()
     algorithmParameters.maxIterations    =100;
     algorithmParameters.beeLifeTime      = 10;
 
-    ProblemParameters problemParameters(tram_amount, graph, tramProblem, stationList, max_transported);
+    ProblemParameters problemParameters(tram_amount, graph, tramProblem, stationList, most_efficient);
 
 
     Bees bees(algorithmParameters, bees_seed(), depot, problemParameters);
