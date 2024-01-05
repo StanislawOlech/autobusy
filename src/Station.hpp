@@ -41,6 +41,8 @@ public:
 
     [[nodiscard]] uint32_t CountPassengers() const;
 
+    [[nodiscard]] std::vector<Point2D> GetPassengersDestination() const;
+
     [[nodiscard]] bool HasPassengers(Point2D dest) { return passengers_[dest] != 0; }
 
     void DividePassengers(uint32_t divider);

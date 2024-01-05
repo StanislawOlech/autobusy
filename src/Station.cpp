@@ -62,6 +62,16 @@ void Station::DebugPrint() const
         std::cout << "\tDest " << dest << ", count=" << count << "\n";
 }
 
+std::vector<Point2D> Station::GetPassengersDestination() const
+{
+    std::vector<Point2D> vec;
+
+    std::transform(std::begin(passengers_), std::end(passengers_), std::back_inserter(vec),
+                   [](auto pair){ return pair.first;});
+
+    return std::move(vec);
+}
+
 std::span<Passenger> PassengerTable::operator()(Point2D station)
 {
     if (!table_.contains(station))
