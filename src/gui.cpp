@@ -205,7 +205,7 @@ void GUI::DrawStationList()
     if (ImGui::Button(u8"Dodaj nową stację"))
     {
         Point2D point2D = {vec[0], vec[1]};
-        if (stations_.end() != std::find(stations_.begin(), stations_.end(), point2D)) [[unlikely]]
+        if (stations_.cend() != std::find(stations_.cbegin(), stations_.cend(), point2D)) [[unlikely]]
         {
             ImGui::OpenPopup("Uwaga");
         }
@@ -260,7 +260,7 @@ void GUI::DrawStationList()
                     stations_.erase(stations_.begin() + row);
 
                     // FIXME: przesuń połączenia pomiędzy stacjami gdy zostanie usunięta stacja
-                    connections_ = {};
+                    connections_.clear();
 
                     // Nie Działa
 //                    std::vector<uint8_t> new_connections_;
@@ -307,6 +307,7 @@ void GUI::DrawStationTable()
 
     if (ImGui::BeginTable("table_angled_headers", stations_.size() + 1, table_flags, outer_size))
     {
+        // FIXME - manualnie do dodawania stacji
         connections_.resize(stations_.size() * stations_.size());
 
         ImGui::TableSetupScrollFreeze(1, 1);
@@ -324,19 +325,22 @@ void GUI::DrawStationTable()
             ImGui::TableSetColumnIndex(0);
             ImGui::AlignTextToFramePadding();
             ImGui::Text("%d", row);
+
+            // FIXME
             for (int column = 1; column < stations_.size() + 1; column++)
+            {
                 if (ImGui::TableSetColumnIndex(column) && column - 1 != row)
                 {
-                    ImGui::PushID(column);
-
                     std::size_t id = row * stations_.size() + column-1;
 
                     if (row > column - 1)
                         id = (column-1) * stations_.size() + row;
 
+                    ImGui::PushID(id);
                     ImGui::Checkbox("", (bool*)&connections_[id]);
                     ImGui::PopID();
                 }
+            }
             ImGui::PopID();
         }
         ImGui::EndTable();
@@ -724,7 +728,6 @@ ProblemParameters GUI::ExportProblem() const
 
     PassengerTable::Table3D passengerTable = ConvertGuiTableToTable3D(table3D, stations_);
 
-//    uint32_t all_passengers = CountPassengers();
     StationList stationList{passengerTable, static_cast<uint32_t>(passenger_loss_rate_)};
 
     for (auto point2d : stations_)

@@ -10,11 +10,12 @@ Graph<Point2D> ConvertGuiGraphToGraph(const std::vector<uint8_t> &connections,
     {
         for (int column = 0; column < stations.size(); ++column)
         {
-            std::size_t idx;
+            if (row == column)
+                continue;
 
-            if (row >= column)
-                idx = row * stations.size() + column;
-            else
+            std::size_t idx = row * stations.size() + column;
+
+            if (row > column)
                 idx = column * stations.size() + row;
 
             bool value = (bool)connections[idx];
