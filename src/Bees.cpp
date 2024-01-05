@@ -11,6 +11,8 @@ std::string_view CriterionToString(criterion c)
             return "Maksymalny przewóz";
         case max_distance:
             return "Maksymalny dystans";
+        case most_efficient:
+            return "Największa efetywność";
         case CRITERION_NR_ITEMS:
             break;
     }
