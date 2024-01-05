@@ -19,6 +19,7 @@ void MakeInputPositive(const char* name, const char* error_text, int *number);
 
 Bees RunAlgorithm(AlgorithmParameters algorithmParameters, ProblemParameters problemParameters);
 
+bool CheckFileExists(char* file_name);
 
 class GUI
 {
@@ -46,6 +47,9 @@ public:
 
 private:
     std::vector<double> y_value_;
+    int axis_flag = 1;
+
+
     uint32_t objectiveFunCalls_ = 0;
     std::future<Bees> future_bees; // Change to bees
 
@@ -58,6 +62,8 @@ private:
     int autobus_number_ = 1;
     int simulated_time_ = 1;
 
+    char file_name[32] = "Dane.txt";
+
     int solutions_number_ = 1;
     int elite_number_ = 1;
     int best_number_ = 1;
@@ -66,7 +72,7 @@ private:
     int neighborhood_size_ = 5;
     int lifetime_= 10;
     int passenger_loss_rate_ = 2;
-    criterion problem_criterion_ = max_transported;
+    criterion problem_criterion_ = most_efficient;
 
     float execution_time_ms_{};
 };

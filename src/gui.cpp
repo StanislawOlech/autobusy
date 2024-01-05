@@ -45,6 +45,11 @@ void MakeInputPositive(const char* name, const char* error_text, int *number)
     MakeWarningPopup(name, error_text);
 }
 
+bool CheckFileExists(char* file_name)
+{
+    std::ifstream file{file_name};
+    return file.good();
+}
 
 void GUI::Draw()
 {
@@ -109,8 +114,19 @@ void GUI::DrawAlgorithm()
 
         ImGui::Spacing();
 
+        ImGui::PushItemWidth(180);
+        ImGui::InputText("Nazwa pliku do zapisu/wczytania", file_name, 32);
+        ImGui::PopItemWidth();
+
         if (ImGui::Button(u8"Zapisz dane do plik"))
-            SaveDataToFile();
+        {
+            if (!CheckFileExists(file_name))
+                SaveDataToFile();
+            else
+            {
+                ImGui::OpenPopup(u8"Nadpisanie pliku");
+            }
+        }
 
         ImGui::SameLine();
 
@@ -124,6 +140,21 @@ void GUI::DrawAlgorithm()
             {
                 ImGui::OpenPopup(u8"Wczytywanie");
             }
+        }
+
+        if (ImGui::BeginPopupModal(u8"Nadpisanie pliku", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text(u8"Plik już istnieje. Czy chesz go nadpisać ?");
+
+            if (ImGui::Button(u8"Tak"))
+            {
+                SaveDataToFile();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(u8"Nie"))
+                ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
         }
 
         if (ImGui::BeginPopupModal(u8"Wczytywanie", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
@@ -144,25 +175,24 @@ void GUI::DrawAlgorithm()
 
 void GUI::DrawResultPlot()
 {
-    static std::vector<double> x_value;
-
-    if (x_value.size() != y_value_.size())
-    {
-        x_value.resize(y_value_.size());
-        std::iota(x_value.begin(), x_value.end(), 0);
-    }
+    constexpr static ImPlotAxisFlags xflags = ImPlotAxisFlags_None;
+    constexpr static ImPlotAxisFlags yflags = ImPlotAxisFlags_None;
+//    constexpr static ImPlotAxisFlags yflags = ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_RangeFit;
 
 
     if (ImPlot::BeginPlot("Wykres funkcji celu", {-1, -1})) {
-        ImPlot::SetupAxes("Numer iteracji","Funkcja celu");
+        ImPlot::SetupAxes("Numer iteracji","Funkcja celu", xflags, yflags);
 
-//        ImPlot::SetupAxesLimits(-1,1,-1,1);
-//        ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, -1, x_value.size() + 5);
-//        if (!y_value_.empty())
-//            ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, -1, *y_value_.rbegin() + 2);
 
-        ImPlot::PlotLine("f(x)", x_value.data(), y_value_.data(), (int)y_value_.size());
+        if(y_value_.empty())
+            ImPlot::SetupAxesLimits(-1, 1, -1, 1);
+        else
+        {
+            ImPlot::SetupAxesLimits(-1, (int)y_value_.size() + 10, -10, *y_value_.rbegin() + 10, axis_flag);
+            axis_flag = ImPlotCond_None;
+        }
 
+        ImPlot::PlotLine("f(x)", y_value_.data(), (int)y_value_.size());
         ImPlot::EndPlot();
     }
 }
@@ -319,6 +349,7 @@ void GUI::DrawArguments()
 
     MakeInputPositive(u8"Liczba autobusów", u8"Liczba autbusów musi być dodatnia", &autobus_number_);
     MakeInputPositive(u8"Czas symulacji", u8"Czas symulacji musi być dodatni", &simulated_time_);
+
     MakeInputPositive(u8"Współczynnik straty pasażerów", u8"Współczynnik musi być dodatni", &passenger_loss_rate_);
     // TODO - dodać jakieś wyjaśnienie
 
@@ -429,6 +460,9 @@ void GUI::DrawArguments()
         }
         ImGui::EndCombo();
     }
+
+    // TODO - dodać nowe otoczenia
+
 
     ImGui::PopItemWidth();
 
@@ -656,6 +690,7 @@ void GUI::DrawResultWindow()
                 y_value_ = bees.getResultIteration();
                 objectiveFunCalls_ = bees.getObjectiveFunCalls();
                 execution_time_ms_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.f;
+                axis_flag = ImPlotCond_Always;
                 ImGui::CloseCurrentPopup();
             }
         }
@@ -701,7 +736,8 @@ ProblemParameters GUI::ExportProblem() const
 
 void GUI::SaveDataToFile()
 {
-    std::ofstream file{"Zapis.txt", std::ofstream::out};
+
+    std::ofstream file{file_name, std::ofstream::out};
 
     if (!file.is_open())
         ImGui::OpenPopup(u8"Nieudany zapis");
@@ -777,7 +813,7 @@ void GUI::SaveDataToFile()
 
 void GUI::LoadDataFromFile()
 {
-    std::ifstream file{"Zapis.txt"};
+    std::ifstream file{file_name};
 
     if (!file.is_open())
         ImGui::OpenPopup(u8"Nieudany odczyt");
