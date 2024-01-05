@@ -70,6 +70,8 @@ public:
 
     [[nodiscard]] uint32_t getObjectiveFunCalls() const { return objectiveFunCalls; }
 
+    [[nodiscard]] Bee getBestBee() const { return best_bee_; }
+
 private:
     void elites_search();
 

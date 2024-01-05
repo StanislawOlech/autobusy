@@ -49,9 +49,9 @@ private:
     std::vector<double> y_value_;
     int axis_flag = 1;
 
-
     uint32_t objectiveFunCalls_ = 0;
     std::future<Bees> future_bees; // Change to bees
+    std::string best_solution_text_ = "Nie uruchomiono jeszcze algorytmu";
 
     std::vector<Point2D> stations_ = {{0, 0}};
     std::vector<uint8_t> connections_{1}; // Cant be vector<bool> due to specialization

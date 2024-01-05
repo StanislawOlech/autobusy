@@ -670,6 +670,11 @@ void GUI::DrawResultWindow()
 
     ImGui::Text(u8"Liczba wyliczeń funkcji celu: %d", objectiveFunCalls_);
 
+    ImGui::Text(u8"Najlepsze rozwiązanie:");
+
+    ImGui::Indent();
+    ImGui::Text(best_solution_text_.c_str());
+    ImGui::Unindent();
 
     /// Execution popup window
     ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -687,10 +692,13 @@ void GUI::DrawResultWindow()
             if (future_bees.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready)
             {
                 Bees bees = future_bees.get(); // it moves value
+
                 y_value_ = bees.getResultIteration();
                 objectiveFunCalls_ = bees.getObjectiveFunCalls();
-                execution_time_ms_ = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.f;
+                best_solution_text_ = bees.getBestBee().trams.Print();
+                execution_time_ms_ = (float)std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count() / 1000.f;
                 axis_flag = ImPlotCond_Always;
+
                 ImGui::CloseCurrentPopup();
             }
         }

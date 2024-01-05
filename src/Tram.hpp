@@ -25,6 +25,8 @@ public:
     [[nodiscard]] std::vector<Point2D> get() const {return (path);};
 
     void DebugPrint() const;
+    std::string Print() const;
+
 private:
     std::vector<Point2D> path;
     bool reverse  = false;
@@ -45,6 +47,8 @@ public:
     void deleteTram(std::size_t position);
 
     void DebugPrint() const;
+
+    std::string Print() const;
 
 private:
     void update();

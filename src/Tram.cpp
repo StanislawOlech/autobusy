@@ -1,5 +1,7 @@
 #include "Tram.hpp"
 #include <iostream>
+#include <sstream>
+
 #define bad_station {-1000, -1000}
 #include "Settings.hpp"
 
@@ -84,6 +86,15 @@ void Tram::DebugPrint() const
     for (auto point2D : path)
         std::cout << point2D << ", ";
     std::cout << "\nPosition = " << position << ", Reverse: "  << reverse << std::endl;
+}
+
+std::string Tram::Print() const
+{
+    std::ostringstream oss{"Path: "};
+    for (auto point2D : path | std::views::take(path.size() - 1))
+        oss << point2D << ", ";
+    oss << *path.rbegin();
+    return oss.str();
 }
 
 
@@ -235,6 +246,14 @@ void TramList::DebugPrint() const
 {
     for (const auto &tram : trams)
         tram.DebugPrint();
+}
+
+std::string TramList::Print() const
+{
+    std::ostringstream oss{};
+    for (auto& tram: trams)
+        oss << tram.Print() << "\n";
+    return oss.str();
 }
 
 
