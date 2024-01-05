@@ -18,7 +18,6 @@ std::tuple<float, uint32_t, float> TramProblem::run(TramList& trams) {
 
 
     for (int t = 0; t != time; t++){
-//        stationList.DebugPrint();
 
         // packing people on trams and ride them to next stops
         std::tuple<uint32_t, uint32_t, uint32_t> objective = trams.stop(stationList);
@@ -36,7 +35,11 @@ std::tuple<float, uint32_t, float> TramProblem::run(TramList& trams) {
     stationList.Clear();
     stationList.Restart();
 
-    return {float(transported) / float(all_passengers), traveled, float(distance) / float(traveled)};
+//    // FIXME
+//    if (traveled == 0)
+//        std::cout << "ERROR" << std::endl;
+
+    return {float(transported) / float(all_passengers), traveled, transported - (distance * 0.1)};
 }
 
 
