@@ -1,9 +1,15 @@
 #include "Tram.hpp"
 #include <iostream>
 #include <sstream>
+#include <unordered_set>
+#include <limits>
+#include <cassert>
 
-#define bad_station {-1000, -1000}
 #include "Settings.hpp"
+
+
+constexpr Point2D bad_station{std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
+
 
 Point2D Tram::stop() {
     /**
@@ -74,6 +80,7 @@ void Tram::add_stop(Point2D next_stop) {
 
     if (dist == 0){return;}
 
+    // TODO - make speed a parameter
     for (uint8_t x = 1; x != dist; x++){
         path.push_back(bad_station);
     }
@@ -91,10 +98,32 @@ void Tram::DebugPrint() const
 std::string Tram::Print() const
 {
     std::ostringstream oss{"Path: "};
+
     for (auto point2D : path | std::views::take(path.size() - 1))
+    {
+        if (point2D == bad_station)
+            continue;
         oss << point2D << ", ";
+    }
     oss << *path.rbegin();
     return oss.str();
+}
+
+std::optional<uint32_t> Tram::distance_stations_count(Point2D point2D) const
+{
+   auto begin = std::next(std::begin(path), position);
+   auto iter = std::find(begin, std::end(path), point2D);
+   auto forward_distance = std::distance(begin, iter);
+
+   if (iter != std::end(path))
+       return forward_distance;
+
+   auto iter_reverse = std::find(std::rbegin(path), std::rend(path), point2D);
+
+   if (iter_reverse == std::rend(path)) // no stations in out path
+       return std::nullopt;
+
+    return forward_distance + std::distance(std::rbegin(path), iter_reverse);
 }
 
 
@@ -116,7 +145,6 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
      *
      */
 
-    // TODO - erase repeating stations, use random_shuffle with std::iota
     for (int i = 0; i != tram_amount; i++){
         Tram tram;
         tram.add_stop(depot);
@@ -131,10 +159,6 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
             last = neighbour[next];
             tram.add_stop(last);
         }
-
-//        tram.set_start_point(abs(int(generator())) % (tram_length));
-//        tram.set_direction(bool(generator() % 2));
-
         tram.set_start_point(0); // Must always start from depot = Point2D{0,0}
         tram.set_direction(false); // Always start going forward
 
@@ -153,13 +177,39 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::stop(StationList& stationList
     uint32_t traveled    = 0;
     uint32_t distance    = 0;
 
-    for (auto tram : trams){
+    constexpr int i = 1;
+
+    for (auto &tram : trams)
+    {
         Point2D current_point = tram.peek_next(0);
 
-        if (NormL1(current_point, bad_station) == 0){continue;}
+        if (current_point == bad_station)
+            continue;
 
-        Station curentStat = stationList.Get(current_point);
+        Station& currentStat = stationList.Get(current_point);
 
+        for (auto dest_point : tram.get())
+        {
+            if (current_point == bad_station || !currentStat.HasPassengers(dest_point))
+                continue;
+
+            uint32_t people_count = currentStat.GetPassengers(dest_point).count;
+
+            transported += people_count;
+            traveled    += people_count * (i);
+            distance    += NormL1(current_point, dest_point);
+
+            stationList.delatePassengers(current_point, dest_point);
+
+
+            auto objective = transfers(stationList, i, dest_point, current_point);
+
+            transported += std::get<0>(objective);
+            traveled += std::get<1>(objective);
+            distance += std::get<2>(objective);
+        }
+
+/*
         for (int i = 1; i < longest_voyage + 1; i++){
             Point2D dest = tram.peek_next(i);
 
@@ -183,6 +233,8 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::stop(StationList& stationList
 
             //std::cout << stationList.Get(current_point).GetPassengers(dest).count;
         }
+*/
+
     }
     this->update();
     return {transported, traveled, distance};
@@ -198,12 +250,34 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::transfers(StationList& statio
      * @param orginalStation orginal station
      * @return number of transported passengers, total distance traveled
      */
+
     uint32_t transported = 0;
     uint32_t traveled    = 0;
     uint32_t distance    = 0;
 
+    constexpr int i = 1;
 
-    for (auto tram : trams){
+    Station& currentStat = stationList.Get(trans_station);
+
+    for (auto &tram : trams)
+    {
+        for (auto dest_point : tram.get())
+        {
+            if (dest_point == bad_station || !currentStat.HasPassengers(dest_point))
+                continue;
+
+            uint32_t people_count = stationList.Get(orginalpoint).GetPassengers(dest_point).count;
+
+            transported += people_count;
+            traveled    += people_count * (i);
+            distance    += NormL1(orginalpoint, dest_point);
+
+            stationList.delatePassengers(orginalpoint, dest_point);
+        }
+    }
+
+/*
+    for (auto &tram : trams){
 
         for (int i = travel_time; i < longest_voyage + 1; i++){
             Point2D first_point = tram.peek_next(i);
@@ -227,6 +301,7 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::transfers(StationList& statio
             break;
         }
     }
+*/
     return {transported, traveled, distance};
 }
 
@@ -255,6 +330,52 @@ std::string TramList::Print() const
         oss << tram.Print() << "\n";
     return oss.str();
 }
+
+void TramList::gen_rand_unique(const Graph<Point2D> &graph, int tram_amount, int tram_length, Point2D depot,
+                               std::mt19937 &generator)
+{
+    for (int i = 0; i != tram_amount; ++i)
+    {
+        Tram tram;
+        tram.add_stop(depot);
+        Point2D last = depot;
+
+        std::unordered_set<Point2D> inserted_stations{depot};
+
+        for (int j = 0; j != tram_length; ++j)
+        {
+            auto it = graph.GetEdge(last);
+
+            if (it == nullptr)
+                break;
+
+            auto neighbour = *it;
+
+            std::vector<uint32_t> vec_idx(neighbour.size());
+            std::iota(vec_idx.begin(), vec_idx.end(), 0);
+            std::shuffle(vec_idx.begin(), vec_idx.end(), generator);
+
+            auto idx_iter = std::find_if(vec_idx.cbegin(), vec_idx.cend(), [&](uint32_t idx){
+                return !inserted_stations.contains(neighbour[idx]);
+            });
+
+            // If reaches the dead end before tram_length, just end path
+            if (idx_iter == vec_idx.cend())
+                break;
+
+            last = neighbour[*idx_iter];
+
+            tram.add_stop(last);
+            inserted_stations.insert(last);
+        }
+
+        tram.set_start_point(0); // Must always start from depot = Point2D{0,0}
+        tram.set_direction(false); // Always start going forward
+
+        trams.push_back(std::move(tram));
+    }
+}
+
 
 
 

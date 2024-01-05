@@ -10,7 +10,7 @@ Liczba zatrudnionych pszczół do obszaru najlepszego: 5
 Liczba zatrudnionych pszczół do obszaru elitarnego: 10
 Rozmiar sąsiectwa: 5
 Czas życia rozwiązania: 10
-Funkcja celu: 0
+Funkcja celu: 2
 
 # Stacje
 0 0

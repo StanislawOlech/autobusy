@@ -22,16 +22,23 @@ public:
     void set_start_point(int position_){position = position_;};
     void set_path(std::vector<Point2D> new_path) {path = std::move(new_path);};
     void set_direction(bool reverse_){reverse = reverse_;};
+
     [[nodiscard]] std::vector<Point2D> get() const {return (path);};
 
+    [[nodiscard]] bool has(Point2D point2D) const { return std::ranges::find(path, point2D) != std::end(path); }
+
+    [[nodiscard]] std::optional<uint32_t> distance_stations_count(Point2D point2D) const;
+
+
     void DebugPrint() const;
-    std::string Print() const;
+    [[nodiscard]] std::string Print() const;
 
 private:
     std::vector<Point2D> path;
     bool reverse  = false;
     int  position = 0;
 };
+
 
 
 class TramList{
@@ -42,13 +49,15 @@ public:
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot);
     void gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937& generator);
 
+    void gen_rand_unique(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937& generator);
+
     std::tuple<uint32_t, uint32_t, uint32_t> stop(StationList& stationList);
 
     void deleteTram(std::size_t position);
 
     void DebugPrint() const;
 
-    std::string Print() const;
+    [[nodiscard]] std::string Print() const;
 
 private:
     void update();
