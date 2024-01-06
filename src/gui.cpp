@@ -674,6 +674,12 @@ void GUI::DrawResultWindow()
 
     ImGui::Text(u8"Liczba wyliczeń funkcji celu: %d", objectiveFunCalls_);
 
+
+    double value = 0;
+    if (!y_value_.empty())
+        value = *y_value_.rbegin();
+    ImGui::Text(u8"Najlepszy wynik: %.2lf", value);
+
     ImGui::Text(u8"Najlepsze rozwiązanie:");
 
     ImGui::Indent();
