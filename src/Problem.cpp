@@ -12,7 +12,7 @@ std::tuple<float, uint32_t, float> TramProblem::run(TramList& trams) {
     // objective function params
     uint32_t transported      = 0;
     uint32_t all_passengers   = stationList.GetPassengersCount();
-    uint32_t distance         = 0;
+    double distance         = 0;
     uint32_t traveled         = 0;
 
 
@@ -35,11 +35,10 @@ std::tuple<float, uint32_t, float> TramProblem::run(TramList& trams) {
     stationList.Clear();
     stationList.Restart();
 
-//    // FIXME
-//    if (traveled == 0)
-//        std::cout << "ERROR" << std::endl;
+//    std::cout << "Transpported: " << transported << ", distance: " << distance << std::endl;
+//    std::cout << "Wynik: " << (double)transported - distance << std::endl;
 
-    return {float(transported) / float(all_passengers), traveled, transported - (distance * 0.1)};
+    return {float(transported) / float(all_passengers), traveled, (double)transported - distance * 0.1};
 }
 
 

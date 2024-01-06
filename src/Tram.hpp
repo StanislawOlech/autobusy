@@ -29,6 +29,8 @@ public:
 
     [[nodiscard]] std::optional<uint32_t> distance_stations_count(Point2D point2D) const;
 
+    [[nodiscard]] std::optional<double> distance_with_punishment(Point2D point2D) const;
+
 
     void DebugPrint() const;
     [[nodiscard]] std::string Print() const;
@@ -51,7 +53,7 @@ public:
 
     void gen_rand_unique(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937& generator);
 
-    std::tuple<uint32_t, uint32_t, uint32_t> stop(StationList& stationList);
+    std::tuple<uint32_t, uint32_t, double> stop(StationList& stationList);
 
     void deleteTram(std::size_t position);
 
@@ -61,7 +63,7 @@ public:
 
 private:
     void update();
-    std::tuple<uint32_t, uint32_t, uint32_t> transfers(StationList& stationList, int traveled, Point2D station, Point2D orginalpoint);
+    std::tuple<uint32_t, uint32_t, double> transfers(StationList& stationList, int traveled, Point2D station, Point2D orginalpoint);
 
     uint32_t longest_voyage;
     std::list<Tram> trams;

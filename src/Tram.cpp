@@ -126,6 +126,44 @@ std::optional<uint32_t> Tram::distance_stations_count(Point2D point2D) const
     return forward_distance + std::distance(std::rbegin(path), iter_reverse);
 }
 
+/**
+ * Added to distance punishement for each bad_station,
+ * path with near stations is better than straight road to destination stations
+ * @param point2D
+ * @return
+ */
+std::optional<double> Tram::distance_with_punishment(Point2D point2D) const
+{
+    constexpr static double punishment = 0.5;
+
+    double dist = 0;
+
+    auto begin = std::next(std::begin(path), position);
+    auto iter = std::find_if(begin, std::end(path), [&](Point2D other){
+        if (other == bad_station)
+            dist += punishment;
+        return other == point2D;
+    });
+
+    auto forward_distance = std::distance(begin, iter);
+    dist += (double)forward_distance;
+
+    if (iter != std::end(path))
+        return dist;
+
+    auto iter_reverse = std::find_if(std::rbegin(path), std::rend(path), [&](Point2D other){
+        if (other == bad_station)
+            dist += punishment;
+        return other == point2D;
+    });
+
+    if (iter_reverse == std::rend(path)) // no stations in out path
+        return std::nullopt;
+
+    dist += (double)std::distance(std::rbegin(path), iter_reverse);
+    return dist;
+}
+
 
 void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot){
     std::mt19937 generator(random_tram_seed);
@@ -166,7 +204,7 @@ void TramList::gen_rand_trams(const Graph<Point2D>& graph, int tram_amount, int 
     }
 }
 
-std::tuple<uint32_t, uint32_t, uint32_t> TramList::stop(StationList& stationList){
+std::tuple<uint32_t, uint32_t, double> TramList::stop(StationList& stationList){
     /**
      * Function to determinate number of passengers and update number of people at every stop
      *
@@ -175,7 +213,7 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::stop(StationList& stationList
      */
     uint32_t transported = 0;
     uint32_t traveled    = 0;
-    uint32_t distance    = 0;
+    double distance    = 0;
 
     constexpr int i = 1;
 
@@ -197,7 +235,14 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::stop(StationList& stationList
 
             transported += people_count;
             traveled    += people_count * (i);
-            distance    += NormL1(current_point, dest_point);
+//            distance    += NormL1(current_point, dest_point);
+
+            if (people_count != 0)
+            {
+                auto curr_distance = tram.distance_with_punishment(dest_point).value();
+                distance    += curr_distance;
+//                std::cout << "Trans " << current_point << "->" << dest_point << ", count:" << people_count << " curr_distance: " << curr_distance << std::endl;
+            }
 
             stationList.delatePassengers(current_point, dest_point);
 
@@ -206,7 +251,7 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::stop(StationList& stationList
 
             transported += std::get<0>(objective);
             traveled += std::get<1>(objective);
-            distance += std::get<2>(objective);
+            distance += std::get<2>(objective); // TODO change
         }
 
 /*
@@ -240,7 +285,7 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::stop(StationList& stationList
     return {transported, traveled, distance};
 }
 
-std::tuple<uint32_t, uint32_t, uint32_t> TramList::transfers(StationList& stationList, int travel_time, Point2D trans_station, Point2D orginalpoint){
+std::tuple<uint32_t, uint32_t, double> TramList::transfers(StationList& stationList, int travel_time, Point2D trans_station, Point2D orginalpoint){
     /**
      * Function to determinate number of passangers that will transfer at  trans_station
      *
@@ -253,7 +298,7 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::transfers(StationList& statio
 
     uint32_t transported = 0;
     uint32_t traveled    = 0;
-    uint32_t distance    = 0;
+    double distance    = 0;
 
     constexpr int i = 1;
 
@@ -270,7 +315,14 @@ std::tuple<uint32_t, uint32_t, uint32_t> TramList::transfers(StationList& statio
 
             transported += people_count;
             traveled    += people_count * (i);
-            distance    += NormL1(orginalpoint, dest_point);
+//            distance    += NormL1(orginalpoint, dest_point);
+
+            if (people_count != 0)
+            {
+                auto curr_distance = tram.distance_with_punishment(dest_point).value();
+                distance    += curr_distance;
+//                std::cout << "Trans " << orginalpoint << "->" << dest_point << ", count:" << people_count << " curr_distance: " << curr_distance << std::endl;
+            }
 
             stationList.delatePassengers(orginalpoint, dest_point);
         }

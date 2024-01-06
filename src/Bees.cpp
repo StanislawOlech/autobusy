@@ -40,7 +40,7 @@ Bees::Bees(
 
     std::sort(solutions.begin(), solutions.end(), std::greater<>());
     best_bee_ = solutions[0];
-    bestValueIteration_.push_back(best_bee_.quality * 100.f);
+    bestValueIteration_.push_back(best_bee_.quality);
 }
 
 Bee Bees::run() {
@@ -59,10 +59,10 @@ Bee Bees::run() {
             best_bee_ = solutions[0];
 
         // TODO - for final project do best of all time
-//        bestValueIteration_.push_back(best_bee_.quality * 100.f);
+        bestValueIteration_.push_back(best_bee_.quality);
 
         // TODO - delete for final project
-        bestValueIteration_.push_back(solutions[0].quality * 100.f);
+//        bestValueIteration_.push_back(solutions[0].quality);
     }
     return best_bee_;
 }
