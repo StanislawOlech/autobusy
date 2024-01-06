@@ -6,8 +6,7 @@
 TramProblem::TramProblem(int time_, StationList& stationList_):
 time(time_), stationList(stationList_){}
 
-std::tuple<float, uint32_t, float> TramProblem::run(TramList& trams) {
-    TramList new_trams(trams);
+std::tuple<float, uint32_t, float> TramProblem::run(TramList trams) {
 
     // objective function params
     uint32_t transported      = 0;
@@ -31,7 +30,6 @@ std::tuple<float, uint32_t, float> TramProblem::run(TramList& trams) {
     }
 
 
-    trams = new_trams;
     stationList.Clear();
     stationList.Restart();
 
