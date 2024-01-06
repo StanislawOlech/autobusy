@@ -11,6 +11,7 @@ Liczba zatrudnionych pszczół do obszaru elitarnego: 10
 Rozmiar sąsiectwa: 5
 Czas życia rozwiązania: 10
 Funkcja celu: 2
+Rodzaj otoczenia: 0
 
 # Stacje
 0 0

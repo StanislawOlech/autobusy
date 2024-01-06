@@ -73,6 +73,7 @@ private:
     int lifetime_= 10;
     int passenger_loss_rate_ = 2;
     criterion problem_criterion_ = most_efficient;
+    Neighborhood neighborhood_ = RANDOM_TRAM_RANDOM_PATH;
 
     float execution_time_ms_{};
 };

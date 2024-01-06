@@ -17,7 +17,14 @@ enum criterion {
     CRITERION_NR_ITEMS
 };
 
+enum Neighborhood {
+    RANDOM_TRAM_RANDOM_PATH = 0,
+    NEIGHBORHOOD_NR_ITEMS
+};
+
 std::string_view CriterionToString(criterion c);
+
+std::string_view NeighborhoodToString(Neighborhood neighborhood);
 
 struct AlgorithmParameters
 {

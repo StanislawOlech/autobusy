@@ -19,6 +19,18 @@ std::string_view CriterionToString(criterion c)
     return "";
 }
 
+std::string_view NeighborhoodToString(Neighborhood neighborhood)
+{
+    switch (neighborhood)
+    {
+        case RANDOM_TRAM_RANDOM_PATH:
+            return "Losowy tramwaj, losowa trasa";
+        case NEIGHBORHOOD_NR_ITEMS:
+            break;
+    }
+    return "";
+}
+
 
 Bees::Bees(
           AlgorithmParameters parameters, uint32_t seed,  Point2D depot, ProblemParameters problemParameters)

@@ -210,7 +210,33 @@ void GUI::DrawStationList()
             ImGui::OpenPopup("Uwaga");
         }
         else
+        {
             stations_.emplace_back(vec[0], vec[1]);
+
+            // Adding connections
+
+//            auto print_conn = [&]() {
+//                for (int row = 0; row < stations_.size(); ++row)
+//                {
+//                    for (int col = 0; col < stations_.size(); ++col)
+//                        std::cout << (bool)connections_[row * stations_.size() + col] << " ";
+//                    std::cout << "\n";
+//                }
+//                std::cout << "\n";
+//            };
+//
+//            print_conn();
+//            for (int i = connections_.size(); i >= 0; i -= stations_.size())
+//            {
+//                connections_.insert(connections_.begin() + i + 1, 0);
+//                print_conn();
+//            }
+//
+//            for (int i = 0; i < stations_.size(); ++i)
+//                connections_.push_back(0);
+//            print_conn();
+
+        }
     }
 
     MakeWarningPopup("Uwaga", u8"Stacja już istnieje");
@@ -445,7 +471,7 @@ void GUI::DrawArguments()
     ImGui::PopItemWidth();
 
 
-    ImGui::PushItemWidth(145);
+    ImGui::PushItemWidth(155);
 
     auto preview_text = CriterionToString(problem_criterion_);
 
@@ -466,6 +492,22 @@ void GUI::DrawArguments()
     }
 
     // TODO - dodać nowe otoczenia
+    preview_text = NeighborhoodToString(neighborhood_);
+    if (ImGui::BeginCombo(u8"Otoczenie", preview_text.data()))
+    {
+        for (int i = 0; i < NEIGHBORHOOD_NR_ITEMS; ++i)
+        {
+            auto text = NeighborhoodToString(static_cast<Neighborhood>(i));
+            const bool is_selected = (neighborhood_ == i);
+
+            if (ImGui::Selectable(text.data(), is_selected))
+                neighborhood_ = static_cast<Neighborhood>(i);
+
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
 
 
     ImGui::PopItemWidth();
@@ -777,6 +819,7 @@ void GUI::SaveDataToFile()
         file << u8"Rozmiar sąsiectwa: " << neighborhood_size_ << '\n';
         file << u8"Czas życia rozwiązania: " << lifetime_ << '\n';
         file << u8"Funkcja celu: " << problem_criterion_ << '\n';
+        file << u8"Rodzaj otoczenia: " << neighborhood_ << '\n';
 
         file << "\n# Stacje\n";
         for (auto point2D : stations_)
@@ -863,6 +906,12 @@ void GUI::LoadDataFromFile()
         problem_criterion_ = static_cast<criterion>(i);
     else
         problem_criterion_ = static_cast<criterion>(0);
+
+    i = get_number();
+    if (i >= 0 && i < NEIGHBORHOOD_NR_ITEMS)
+        neighborhood_ = static_cast<Neighborhood>(i);
+    else
+        neighborhood_ = static_cast<Neighborhood>(0);
 
     std::getline(file, line);
     // skip empty line, skip comment line
