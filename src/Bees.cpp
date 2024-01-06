@@ -32,7 +32,7 @@ Bees::Bees(
     for (int i=0; i != parameters.solutionsNumber; i ++) {
         // generate random solutions
         Bee bee;
-        bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
+        bee.trams.gen_rand_unique(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
         bee.quality = calculateFitness(bee.trams);
         bee.age = 0;
         solutions.push_back(bee);
@@ -75,7 +75,7 @@ void Bees::elites_search() {
             Bee tempBee(solutions[i]);
 
             tempBee.trams.deleteTram(generator_() % tram_amount);
-            tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_, generator_);
+            tempBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
             tempBee.quality = calculateFitness(tempBee.trams);
             tempBee.age = 0;
 
@@ -97,7 +97,7 @@ void Bees::best_search() {
             Bee tempBee(solutions[i]);
 
             tempBee.trams.deleteTram(generator_() % tram_amount);
-            tempBee.trams.gen_rand_trams(problemParameters_.stations, 1, tram_length, depot_, generator_);
+            tempBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
             tempBee.quality = calculateFitness(tempBee.trams);
             tempBee.age = 0;
 
@@ -113,7 +113,7 @@ void Bees::scouts_search() {
 
         // generate random solutions
         Bee bee;
-        bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
+        bee.trams.gen_rand_unique(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
         bee.quality = calculateFitness(bee.trams);
         bee.age = 0;
         solutions[i] = bee;
@@ -123,7 +123,7 @@ void Bees::scouts_search() {
 
 
 float Bees::calculateFitness(TramList trams) {
-    objectiveFunCalls ++;
+    objectiveFunCalls++;
     // Calculate the fitness (quality) of a Trams
     std::tuple<float, uint32_t, float> objective = problemParameters_.tramProblem.run(trams);
 
@@ -147,7 +147,7 @@ void Bees::age() {
         if (solutions[i].age > parameters_.beeLifeTime){
             // generate random solutions
             Bee bee;
-            bee.trams.gen_rand_trams(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
+            bee.trams.gen_rand_unique(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
             bee.quality = calculateFitness(bee.trams);
             bee.age = 0;
             solutions[i] = bee;
