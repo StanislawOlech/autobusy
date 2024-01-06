@@ -86,52 +86,58 @@ void Bees::elites_search() {
     {
         Bee &newBee = solutions[i];
 
-        auto &vec = localBees_[newBee];
+        std::vector<BeeLocal> vec;
+        vec.reserve(parameters_.eliteRecruits);
+
+        for (auto z : std::views::iota(0, parameters_.eliteRecruits))
+            vec.push_back(CreatLocalBee(newBee));
+
         bool has_changed_bee = false;
 
-        if (vec.empty())
+        // szukaj lokalnie dopóki czas życia, sąsiectwo dla elitranych nie jest adaptacyjne
+        for (int j = 0; j < parameters_.beeLifeTime; ++j)
         {
-            vec.reserve(parameters_.eliteCount);
-            for (auto z : std::views::iota(0, parameters_.eliteCount))
-                vec.push_back(CreatLocalBee(newBee));
-
-        }
-
-        for (auto &localBee: vec)
-        {
-            if (localBee.distance_from_original > parameters_.neighborhoodSize)
-                localBee = CreatLocalBee(newBee);
-
-
-            if (problemParameters_.neighborhood == RANDOM_TRAM_RANDOM_PATH)
+            for (auto &localBee: vec)
             {
-                localBee.trams.deleteTram(generator_() % tram_amount);
-                localBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
-                localBee.quality = calculateFitness(localBee.trams);
-                localBee.distance_from_original += 1;
-            }
-            else if (problemParameters_.neighborhood == RANDOM_TRAM_RANDOM_AFTER)
-            {
-                localBee.trams.gen_rand_after(problemParameters_.stations, problemParameters_.neighborhood, tram_length,
-                                              depot_, generator_);
-                localBee.quality = calculateFitness(localBee.trams);
-                // dystans nie ma znaczenia, nie będzie większy niż rozmiar otoczenia
+                if (localBee.distance_from_original > parameters_.neighborhoodSize)
+                    localBee = CreatLocalBee(newBee);
+
+                if (problemParameters_.neighborhood == RANDOM_TRAM_RANDOM_PATH) // Sąsiectwo 1
+                {
+                    localBee.trams.deleteTram(generator_() % tram_amount);
+                    localBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
+                    localBee.quality = calculateFitness(localBee.trams);
+                    localBee.distance_from_original += 1;
+                }
+                else if (problemParameters_.neighborhood == RANDOM_TRAM_RANDOM_AFTER) // Sąsiectwo 2
+                {
+                    localBee.trams.gen_rand_after(problemParameters_.stations, problemParameters_.neighborhood, tram_length,
+                                                  depot_, generator_);
+                    localBee.quality = calculateFitness(localBee.trams);
+                    // dystans nie ma znaczenia, nie będzie większy niż rozmiar otoczenia
+                }
+
+                if (localBee.quality > newBee.quality)
+                {
+                    newBee.trams = localBee.trams;
+                    newBee.quality = localBee.quality;
+                    newBee.age = 0;
+
+                    has_changed_bee = true;
+                }
             }
 
-            if (localBee.quality > newBee.quality)
+            // Jeśli polepszono - przeszukanie lokalne na nowo
+            if (has_changed_bee)
             {
-                newBee.trams = localBee.trams;
-                newBee.quality = localBee.quality;
-                newBee.age = 0;
-                has_changed_bee = true;
+                has_changed_bee = false;
+                j = 0;
+
+                auto localBee = CreatLocalBee(newBee);
+                std::fill(vec.begin(), vec.end(), localBee);
             }
         }
-
-        if (has_changed_bee)
-        {
-            auto localBee = CreatLocalBee(newBee);
-            std::fill(vec.begin(), vec.end(), localBee);
-        }
+        newBee.age = parameters_.beeLifeTime;
     }
 
 //    for (int i=0; i != parameters_.eliteCount; i ++) {
@@ -160,37 +166,68 @@ void Bees::best_search() {
     {
         Bee &newBee = solutions[i];
 
-        auto &vec = localBees_[newBee];
+        std::vector<BeeLocal> vec;
+        vec.reserve(parameters_.bestRecruits);
+
+        for (auto z : std::views::iota(0, parameters_.bestRecruits))
+            vec.push_back(CreatLocalBee(newBee));
 
         bool has_changed_bee = false;
+        int neighborhood_size = parameters_.neighborhoodSize;
+        int iter_without_change = 0;
 
-        if (vec.empty())
+        // szukaj lokalnie dopóki czas życia i sąsiectwo nie jest zerowe
+        for (int j = 0; j < parameters_.beeLifeTime || neighborhood_size <= 0; ++j)
         {
-            vec.resize(parameters_.bestCount);
-            std::fill(vec.begin(), vec.end(), CreatLocalBee(newBee));
-        }
-
-        for (auto &localBee : vec)
-        {
-            if (localBee.distance_from_original > parameters_.neighborhoodSize)
-                localBee = CreatLocalBee(newBee);
-
-            localBee.trams.deleteTram(generator_() % tram_amount);
-            localBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
-            localBee.quality = calculateFitness(localBee.trams);
-            localBee.distance_from_original += 1;
-
-            if (localBee.quality > newBee.quality)
+            for (auto &localBee: vec)
             {
-                newBee.trams = localBee.trams;
-                newBee.quality = localBee.quality;
-                newBee.age = 0;
-                has_changed_bee = true;
+                if (localBee.distance_from_original > neighborhood_size)
+                    localBee = CreatLocalBee(newBee);
+
+                if (problemParameters_.neighborhood == RANDOM_TRAM_RANDOM_PATH) // Sąsiectwo 1
+                {
+                    localBee.trams.deleteTram(generator_() % tram_amount);
+                    localBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
+                    localBee.quality = calculateFitness(localBee.trams);
+                    localBee.distance_from_original += 1;
+                }
+                else if (problemParameters_.neighborhood == RANDOM_TRAM_RANDOM_AFTER) // Sąsiectwo 2
+                {
+                    localBee.trams.gen_rand_after(problemParameters_.stations, problemParameters_.neighborhood, tram_length,
+                                                  depot_, generator_);
+                    localBee.quality = calculateFitness(localBee.trams);
+                    // dystans nie ma znaczenia, nie będzie większy niż rozmiar otoczenia
+                }
+
+                ++iter_without_change;
+                if (localBee.quality > newBee.quality)
+                {
+                    newBee.trams = localBee.trams;
+                    newBee.quality = localBee.quality;
+                    newBee.age = 0;
+
+                    has_changed_bee = true;
+                }
+
+                if (parameters_.adaptive_size > 0 && iter_without_change >= parameters_.adaptive_size)
+                {
+                    neighborhood_size /= 2; // TODO - add parameter
+                }
+            }
+
+            // Jeśli polepszono - przeszukanie lokalne na nowo
+            if (has_changed_bee)
+            {
+                has_changed_bee = false;
+                j = 0;
+                neighborhood_size = parameters_.neighborhoodSize;
+                iter_without_change = 0;
+
+                auto localBee = CreatLocalBee(newBee);
+                std::fill(vec.begin(), vec.end(), localBee);
             }
         }
-
-        if (has_changed_bee)
-            std::fill(vec.begin(), vec.end(), CreatLocalBee(newBee));
+        newBee.age = parameters_.beeLifeTime;
     }
 
 //        for (int j=0; j != parameters_.eliteRecruits; j ++) {
@@ -260,7 +297,6 @@ void Bees::age() {
         Bee &bee = solutions[i];
 
         if (bee.age > parameters_.beeLifeTime){
-            localBees_[bee].clear();
             bee.trams.gen_rand_unique(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
             bee.quality = calculateFitness(bee.trams);
             bee.age = 0;
@@ -278,11 +314,9 @@ ProblemParameters::ProblemParameters(const int i, Graph<struct Point2D> graph, T
 {
 }
 
-Bee::Bee(const TramList& trams, double quality, uint8_t age): trams{trams}, quality{quality}, age{age}
-{
-    id = all_id;
-    ++all_id;
-}
+//Bee::Bee(const TramList& trams, double quality, uint8_t age): trams{trams}, quality{quality}, age{age}
+//{
+//}
 
 BeeLocal CreatLocalBee(const Bee& bee)
 {

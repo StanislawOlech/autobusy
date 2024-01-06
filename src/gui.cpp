@@ -470,6 +470,21 @@ void GUI::DrawArguments()
 
 
 
+    if (ImGui::InputInt("Adaptacyjny rozmiar", &adaptive_size_))
+    {
+        if (adaptive_size_ > lifetime_)
+        {
+            adaptive_size_ = lifetime_;
+        }
+        else if (adaptive_size_ < 0)
+            adaptive_size_ = 0;
+    }
+    ImGui::SameLine();
+
+    HelpMarker("Po ilu iteracjach bez poprawy funkcji celu zminiejszenie\n o połowę rozmiaru sąsiectwa"
+               " dla najlepszych rozwiązań, nie elitranych.\n"
+               "Liczba zero oznacza brak adaptacyjnej zmiany");
+
 
     ImGui::PopItemWidth();
 
@@ -769,7 +784,8 @@ AlgorithmParameters GUI::ExportAlgorithm() const
         .eliteCount = elite_number_,
         .neighborhoodSize = neighborhood_size_,
         .maxIterations = max_iter_,
-        .beeLifeTime = lifetime_
+        .beeLifeTime = lifetime_,
+        .adaptive_size = adaptive_size_
     };
 }
 
@@ -822,9 +838,11 @@ void GUI::SaveDataToFile()
 
         file << u8"Rozmiar sąsiectwa: " << neighborhood_size_ << '\n';
         file << u8"Czas życia rozwiązania: " << lifetime_ << '\n';
+        file << u8"Adaptacyjny rozmiar: " << adaptive_size_ << '\n';
         file << u8"Funkcja celu: " << problem_criterion_ << '\n';
         file << u8"Rodzaj otoczenia: " << neighborhood_ << '\n';
 
+        
         file << "\n# Stacje\n";
         for (auto point2D : stations_)
         {
@@ -904,6 +922,7 @@ void GUI::LoadDataFromFile()
     elite_size_ = get_number();
     neighborhood_size_ = get_number();
     lifetime_ = get_number();
+    adaptive_size_ = get_number();
 
     int i = get_number();
     if (i >= 0 && i < CRITERION_NR_ITEMS)

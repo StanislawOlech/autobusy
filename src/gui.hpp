@@ -75,6 +75,8 @@ private:
     criterion problem_criterion_ = most_efficient;
     Neighborhood neighborhood_ = RANDOM_TRAM_RANDOM_PATH;
 
+    int adaptive_size_ = 0;
+
     float execution_time_ms_{};
 };
 
