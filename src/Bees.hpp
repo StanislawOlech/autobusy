@@ -59,12 +59,44 @@ struct ProblemParameters
 // Represents a bee's location and quality
 class Bee {
 public:
+    Bee() = default;
+    Bee(const TramList& trams, double quality, uint8_t age);
+
     TramList trams;
     double quality;
     uint8_t    age;
+
     friend bool operator< (const Bee& c1, const Bee& c2){return c1.quality < c2.quality;};
     friend bool operator> (const Bee& c1, const Bee& c2){return c1.quality > c2.quality;};
+    friend bool operator==(const Bee& c1, const Bee& c2) { return c1.GetId() == c2.GetId(); }
+
+    [[nodiscard]] uint64_t GetId() const { return id; }
+
+private:
+    uint64_t id; // is unique
+    inline static uint64_t all_id = 0;
 };
+
+template<>
+struct std::hash<Bee>
+{
+    std::size_t operator()(const Bee& bee) const noexcept
+    {
+        return std::hash<uint64_t>{}(bee.GetId());;
+    }
+};
+
+
+class BeeLocal {
+public:
+    TramList trams;
+    double quality;
+    uint32_t distance_from_original = 0;
+    friend bool operator< (const BeeLocal& c1, const BeeLocal& c2){return c1.quality < c2.quality;};
+    friend bool operator> (const BeeLocal& c1, const BeeLocal& c2){return c1.quality > c2.quality;};
+};
+
+BeeLocal CreatLocalBee(const Bee& bee);
 
 class Bees {
 public:
@@ -100,6 +132,8 @@ private:
 
     // in each iteration, for generating plot
     std::vector<double> bestValueIteration_;
+
+    std::unordered_map<Bee, std::vector<BeeLocal>> localBees_;
 
     // Problem
     ProblemParameters problemParameters_;

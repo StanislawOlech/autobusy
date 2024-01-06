@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <limits>
+#include <chrono>
 
 std::string_view CriterionToString(criterion c)
 {
@@ -80,51 +81,141 @@ Bee Bees::run() {
 }
 
 void Bees::elites_search() {
-    for (int i=0; i != parameters_.eliteCount; i ++) {
-        Bee newBee(solutions[i]);
+    for (int i=0; i != parameters_.eliteCount; i ++)
+    {
+        Bee &newBee = solutions[i];
 
-        for (int j=0; j != parameters_.eliteRecruits; j ++) {
-            Bee tempBee(solutions[i]);
+        auto &vec = localBees_[newBee];
+        bool has_changed_bee = false;
 
-            tempBee.trams.deleteTram(generator_() % tram_amount);
-            tempBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
-            tempBee.quality = calculateFitness(tempBee.trams);
-            tempBee.age = 0;
+        if (vec.empty())
+        {
+            vec.reserve(parameters_.eliteCount);
+            for (auto z : std::views::iota(0, parameters_.eliteCount))
+                vec.push_back(CreatLocalBee(newBee));
 
-            if (tempBee.quality > newBee.quality){
-                newBee = tempBee;
+        }
+
+        for (auto &localBee: vec)
+        {
+            if (localBee.distance_from_original > parameters_.neighborhoodSize)
+                localBee = CreatLocalBee(newBee);
+
+
+            localBee.trams.deleteTram(generator_() % tram_amount);
+            localBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
+            localBee.quality = calculateFitness(localBee.trams);
+            localBee.distance_from_original += 1;
+
+
+            if (localBee.quality > newBee.quality)
+            {
+                newBee.trams = localBee.trams;
+                newBee.quality = localBee.quality;
+                newBee.age = 0;
+                has_changed_bee = true;
             }
         }
-        if (newBee.quality > solutions[i].quality){
-            solutions[i] = newBee;
+
+        if (has_changed_bee)
+        {
+            auto localBee = CreatLocalBee(newBee);
+            std::fill(vec.begin(), vec.end(), localBee);
         }
     }
+
+//    for (int i=0; i != parameters_.eliteCount; i ++) {
+//        Bee newBee(solutions[i]);
+//
+//        for (int j=0; j != parameters_.eliteRecruits; j ++) {
+//            Bee tempBee(solutions[i]);
+//
+//            tempBee.trams.deleteTram(generator_() % tram_amount);
+//            tempBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
+//            tempBee.quality = calculateFitness(tempBee.trams);
+//            tempBee.age = 0;
+//
+//            if (tempBee.quality > newBee.quality){
+//                newBee = tempBee;
+//            }
+//        }
+//        if (newBee.quality > solutions[i].quality){
+//            solutions[i] = newBee;
+//        }
+//    }
 }
 
 void Bees::best_search() {
-    for (int i=parameters_.eliteCount; i != parameters_.bestCount; i ++) {
-        Bee newBee(solutions[i]);
+    for (int i=parameters_.eliteCount; i != parameters_.bestCount; i ++)
+    {
+        Bee &newBee = solutions[i];
 
-        for (int j=0; j != parameters_.bestRecruits; j ++) {
-            Bee tempBee(solutions[i]);
+        auto &vec = localBees_[newBee];
 
-            tempBee.trams.deleteTram(generator_() % tram_amount);
-            tempBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
-            tempBee.quality = calculateFitness(tempBee.trams);
-            tempBee.age = 0;
+        bool has_changed_bee = false;
 
-            if (tempBee.quality > newBee.quality){newBee = tempBee;}
+        if (vec.empty())
+        {
+            vec.resize(parameters_.bestCount);
+            std::fill(vec.begin(), vec.end(), CreatLocalBee(newBee));
         }
-        if (newBee.quality > solutions[i].quality){solutions[i] = newBee;}
+
+        for (auto &localBee : vec)
+        {
+            if (localBee.distance_from_original > parameters_.neighborhoodSize)
+                localBee = CreatLocalBee(newBee);
+
+            localBee.trams.deleteTram(generator_() % tram_amount);
+            localBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
+            localBee.quality = calculateFitness(localBee.trams);
+            localBee.distance_from_original += 1;
+
+            if (localBee.quality > newBee.quality)
+            {
+                newBee.trams = localBee.trams;
+                newBee.quality = localBee.quality;
+                newBee.age = 0;
+                has_changed_bee = true;
+            }
+        }
+
+        if (has_changed_bee)
+            std::fill(vec.begin(), vec.end(), CreatLocalBee(newBee));
     }
 
+//        for (int j=0; j != parameters_.eliteRecruits; j ++) {
+//            BeeLocal tempBee = CreatLocalBee(newBee);
+//
+//
+//            tempBee.trams.deleteTram(generator_() % tram_amount);
+//            tempBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
+//            tempBee.quality = calculateFitness(tempBee.trams);
+//            tempBee.distance_from_original += 1;
+//
+//
+
+//    }
+//    for (int i=parameters_.eliteCount; i != parameters_.bestCount; i ++) {
+//        Bee newBee(solutions[i]);
+//
+//        for (int j=0; j != parameters_.bestRecruits; j ++) {
+//            Bee tempBee(solutions[i]);
+//
+//            tempBee.trams.deleteTram(generator_() % tram_amount);
+//            tempBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
+//            tempBee.quality = calculateFitness(tempBee.trams);
+//            tempBee.age = 0;
+//
+//            if (tempBee.quality > newBee.quality){newBee = tempBee;}
+//        }
+//        if (newBee.quality > solutions[i].quality){solutions[i] = newBee;}
+//    }
 }
+
 
 void Bees::scouts_search() {
     for (int i=parameters_.bestCount; i != parameters_.solutionsNumber; i ++) {
-
-        // generate random solutions
-        Bee bee;
+        Bee &bee = solutions[i];
         bee.trams.gen_rand_unique(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
         bee.quality = calculateFitness(bee.trams);
         bee.age = 0;
@@ -155,16 +246,17 @@ float Bees::calculateFitness(TramList trams) {
 }
 
 void Bees::age() {
-    for (int i=0; i != parameters_.solutionsNumber; i ++) {
-        if (solutions[i].age > parameters_.beeLifeTime){
-            // generate random solutions
-            Bee bee;
+    for (int i=0; i != parameters_.bestCount; i ++) {
+        Bee &bee = solutions[i];
+
+        if (bee.age > parameters_.beeLifeTime){
+            localBees_[bee].clear();
             bee.trams.gen_rand_unique(problemParameters_.stations, tram_amount, tram_length, depot_, generator_);
             bee.quality = calculateFitness(bee.trams);
             bee.age = 0;
-            solutions[i] = bee;
         }
-        solutions[i].age ++;
+        else
+            bee.age ++;
     }
 }
 
@@ -173,4 +265,19 @@ ProblemParameters::ProblemParameters(const int i, Graph<struct Point2D> graph, T
                                      :tramCount(i), stations(std::move(graph)), tramProblem(std::move(problem)),
                                         stationList(std::move(list)), problemCriterion(criterion1)
 {
+}
+
+Bee::Bee(const TramList& trams, double quality, uint8_t age): trams{trams}, quality{quality}, age{age}
+{
+    id = all_id;
+    ++all_id;
+}
+
+BeeLocal CreatLocalBee(const Bee& bee)
+{
+    return {
+        .trams = bee.trams,
+        .quality = bee.quality,
+        .distance_from_original = 0
+    };
 }

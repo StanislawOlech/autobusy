@@ -35,9 +35,6 @@ std::tuple<float, uint32_t, float> TramProblem::run(TramList& trams) {
     stationList.Clear();
     stationList.Restart();
 
-//    std::cout << "Transpported: " << transported << ", distance: " << distance << std::endl;
-//    std::cout << "Wynik: " << (double)transported - distance << std::endl;
-
     return {float(transported) / float(all_passengers), traveled, (double)transported - distance * 0.1};
 }
 
