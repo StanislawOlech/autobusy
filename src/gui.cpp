@@ -1,3 +1,6 @@
+/// UWAGA: plik przygotowany zgodnie z demo imgui, licencja MIT
+
+
 #include "gui.hpp"
 
 #include "imgui.h"
