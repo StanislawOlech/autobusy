@@ -791,7 +791,8 @@ ProblemParameters GUI::ExportProblem() const
         graph,
         tramProblem,
         stationList,
-        problem_criterion_
+        problem_criterion_,
+        neighborhood_
     };
 }
 

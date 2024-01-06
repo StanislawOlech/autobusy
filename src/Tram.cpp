@@ -3,7 +3,6 @@
 #include <sstream>
 #include <unordered_set>
 #include <limits>
-#include <cassert>
 
 #include "Settings.hpp"
 
@@ -241,7 +240,6 @@ std::tuple<uint32_t, uint32_t, double> TramList::stop(StationList& stationList){
             {
                 auto curr_distance = tram.distance_with_punishment(dest_point).value();
                 distance    += curr_distance;
-//                std::cout << "Trans " << current_point << "->" << dest_point << ", count:" << people_count << " curr_distance: " << curr_distance << std::endl;
             }
 
             stationList.delatePassengers(current_point, dest_point);
@@ -369,6 +367,12 @@ void TramList::update() {
     }
 }
 
+Tram& TramList::Get(std::size_t idx)  {
+    auto it = trams.begin();
+    std::advance(it, idx);
+    return *it;
+}
+
 void TramList::DebugPrint() const
 {
     for (const auto &tram : trams)
@@ -428,9 +432,50 @@ void TramList::gen_rand_unique(const Graph<Point2D> &graph, int tram_amount, int
     }
 }
 
+// Losowa trasa ale od losowego punktu (zazwyczaj nie cała nowa trasa, ale jest to możliwe)
+void TramList::gen_rand_after(const Graph<Point2D>& graph, int max_change, int tram_length, Point2D depot, std::mt19937& generator)
+{
+    Tram& tram = Get(generator() % trams.size());
+    auto old_path = tram.get();
+
+    if (old_path.empty())
+        return;
+
+    int end = old_path.size() - 1;
+    int start = 1;
+
+    if (start == end)
+        return;
+    else if (end > max_change)
+        start = end  + 1 - max_change;
 
 
+    std::uniform_int_distribution<> distrib(start, end);
+    auto idx_delete= distrib(generator);
 
+    auto start_station  = old_path[idx_delete - 1];
+    auto path = std::vector(old_path.begin(), old_path.begin() + idx_delete);
 
+    for (int i = idx_delete - 1; i != tram_length; ++i)
+    {
+        auto connection_ptr = graph.GetEdge(start_station);
 
+        if (connection_ptr == nullptr)
+            return;
 
+        auto &connection = *connection_ptr;
+
+        std::vector<uint32_t> vec_idx(connection.size());
+        std::iota(vec_idx.begin(), vec_idx.end(), 0);
+        std::shuffle(vec_idx.begin(), vec_idx.end(), generator);
+
+        auto idx_iter = std::find_if(vec_idx.cbegin(), vec_idx.cend(), [&](uint32_t idx){
+            return std::find(path.begin(), path.end(), connection[vec_idx[0]]) != path.end();
+        });
+
+        if (idx_iter != vec_idx.end())
+            return ;
+
+        path.push_back(connection[*idx_iter]);
+    }
+}

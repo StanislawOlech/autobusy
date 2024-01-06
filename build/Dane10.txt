@@ -3,9 +3,9 @@ Liczba autobusów: 3
 Czas symulacji: 6
 Współczynnik straty autobusów: 2
 Liczba iteracji: 100
-Liczba rozwiązań: 10
-Liczba rozwiązań najlepszych: 5
-Liczba rozwiązań elitarnych: 2
+Liczba rozwiązań: 20
+Liczba rozwiązań najlepszych: 10
+Liczba rozwiązań elitarnych: 5
 Liczba zatrudnionych pszczół do obszaru najlepszego: 5
 Liczba zatrudnionych pszczół do obszaru elitarnego: 10
 Rozmiar sąsiectwa: 5

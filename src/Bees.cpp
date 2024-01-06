@@ -26,6 +26,8 @@ std::string_view NeighborhoodToString(Neighborhood neighborhood)
     {
         case RANDOM_TRAM_RANDOM_PATH:
             return "Losowy tramwaj, losowa trasa";
+        case RANDOM_TRAM_RANDOM_AFTER:
+            return "Losowy tramwaj, losowa zmiana końca trasy";
         case NEIGHBORHOOD_NR_ITEMS:
             break;
     }
@@ -71,11 +73,10 @@ Bee Bees::run() {
         if (solutions[0].quality > best_bee_.quality)
             best_bee_ = solutions[0];
 
-        // TODO - for final project do best of all time
         bestValueIteration_.push_back(best_bee_.quality);
 
-        // TODO - delete for final project
-//        bestValueIteration_.push_back(solutions[0].quality);
+        // For debug only
+        // bestValueIteration_.push_back(solutions[0].quality);
     }
     return best_bee_;
 }
@@ -102,11 +103,20 @@ void Bees::elites_search() {
                 localBee = CreatLocalBee(newBee);
 
 
-            localBee.trams.deleteTram(generator_() % tram_amount);
-            localBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
-            localBee.quality = calculateFitness(localBee.trams);
-            localBee.distance_from_original += 1;
-
+            if (problemParameters_.neighborhood == RANDOM_TRAM_RANDOM_PATH)
+            {
+                localBee.trams.deleteTram(generator_() % tram_amount);
+                localBee.trams.gen_rand_unique(problemParameters_.stations, 1, tram_length, depot_, generator_);
+                localBee.quality = calculateFitness(localBee.trams);
+                localBee.distance_from_original += 1;
+            }
+            else if (problemParameters_.neighborhood == RANDOM_TRAM_RANDOM_AFTER)
+            {
+                localBee.trams.gen_rand_after(problemParameters_.stations, problemParameters_.neighborhood, tram_length,
+                                              depot_, generator_);
+                localBee.quality = calculateFitness(localBee.trams);
+                // dystans nie ma znaczenia, nie będzie większy niż rozmiar otoczenia
+            }
 
             if (localBee.quality > newBee.quality)
             {
@@ -261,9 +271,10 @@ void Bees::age() {
 }
 
 ProblemParameters::ProblemParameters(const int i, Graph<struct Point2D> graph, TramProblem problem, StationList list,
-                                     criterion criterion1)
+                                     criterion criterion1, Neighborhood neighborhood)
                                      :tramCount(i), stations(std::move(graph)), tramProblem(std::move(problem)),
-                                        stationList(std::move(list)), problemCriterion(criterion1)
+                                        stationList(std::move(list)), problemCriterion(criterion1),
+                                        neighborhood{neighborhood}
 {
 }
 

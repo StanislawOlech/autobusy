@@ -31,6 +31,7 @@ public:
 
     [[nodiscard]] std::optional<double> distance_with_punishment(Point2D point2D) const;
 
+    [[nodiscard]] std::size_t size() const { return path.size(); }
 
     void DebugPrint() const;
     [[nodiscard]] std::string Print() const;
@@ -53,6 +54,8 @@ public:
 
     void gen_rand_unique(const Graph<Point2D>& graph, int tram_amount, int tram_length, Point2D depot, std::mt19937& generator);
 
+    void gen_rand_after(const Graph<Point2D>& graph, int max_change, int tram_length, Point2D depot, std::mt19937& generator);
+
     std::tuple<uint32_t, uint32_t, double> stop(StationList& stationList);
 
     void deleteTram(std::size_t position);
@@ -60,6 +63,8 @@ public:
     void DebugPrint() const;
 
     [[nodiscard]] std::string Print() const;
+
+    Tram& Get(std::size_t idx);
 
 private:
     void update();

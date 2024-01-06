@@ -19,6 +19,7 @@ enum criterion {
 
 enum Neighborhood {
     RANDOM_TRAM_RANDOM_PATH = 0,
+    RANDOM_TRAM_RANDOM_AFTER= 1,
     NEIGHBORHOOD_NR_ITEMS
 };
 
@@ -45,13 +46,14 @@ struct AlgorithmParameters
 struct ProblemParameters
 {
     ProblemParameters(int i, Graph<struct Point2D> graph, TramProblem problem, StationList list,
-                      criterion criterion1);
+                      criterion criterion1, Neighborhood neighborhood);
 
     int tramCount;
     Graph<Point2D> stations;
     TramProblem tramProblem;
     StationList stationList;
     criterion problemCriterion;
+    Neighborhood neighborhood;
 };
 
 
@@ -133,7 +135,7 @@ private:
     // in each iteration, for generating plot
     std::vector<double> bestValueIteration_;
 
-    std::unordered_map<Bee, std::vector<BeeLocal>> localBees_;
+    std::unordered_map<Bee, std::vector<BeeLocal>> localBees_; // Best and elite
 
     // Problem
     ProblemParameters problemParameters_;
