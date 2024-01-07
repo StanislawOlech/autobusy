@@ -1,39 +1,16 @@
 #include "Station.hpp"
 #include "Tram.hpp"
 #include <iostream>
+#include <map>
+#include "Bees.hpp"
+#include "Problem.hpp"
+#include "Settings.hpp"
 
-std::tuple<uint32_t, uint32_t, uint32_t> check_ans(int time, StationList stationList, TramList trams){
-    // objective function params
-    uint32_t transported      = 0;
-    uint32_t all_passengers   = 0;
-    uint32_t distance         = 0;
 
-    for (int t = 0; t != time; t++){
-
-        // populating tram stops
-        all_passengers += stationList.GenerateRandomPass();
-
-        // packing people on trams and ride them to next stops
-        std::tuple<uint32_t, uint32_t> objective = trams.stop(stationList);
-
-        // objective function update
-        transported += std::get<0>(objective);
-        distance    += std::get<1>(objective);
-
-        stationList.Update();
-    }
-
-    return {transported, distance, all_passengers};
-}
 
 
 int main()
 {
-    constexpr int n = 5;
-    constexpr int m = 5;
-    constexpr int time = 10;
-    constexpr int tram_amount = 10;
-    constexpr int tram_length = 5; // to eliminate in final product
     Point2D depot{0, 0};
 
 
@@ -44,19 +21,20 @@ int main()
 
     for (int x = 0; x != n; x++){
         for (int y = 0; y != m; y++){
-            if (y + 1 < m){
-                graph.AddEdge({x, y}, {x, y + 1});
-                graph.AddEdge({x, y + 1}, {x, y});
+            int dist = 1;
+            if (y + dist < m){
+                graph.AddEdge({x, y}, {x, y + dist});
+                graph.AddEdge({x, y + dist}, {x, y});
             }
-            if (x + 1 < n){
-                graph.AddEdge({x, y}, {x + 1, y});
-                graph.AddEdge({x + 1, y}, {x, y});
+            if (x + dist < n){
+                graph.AddEdge({x, y}, {x + dist, y});
+                graph.AddEdge({x + dist, y}, {x, y});
             }
-            if (x + 1 < n && y + 1 < m){
-                graph.AddEdge({x, y}, {x + 1, y + 1});
-                graph.AddEdge({x + 1, y + 1}, {x, y});
-                graph.AddEdge({x + 1, y}, {x, y + 1});
-                graph.AddEdge({x, y + 1}, {x + 1, y});
+            if (x + dist < n && y + dist < m){
+                graph.AddEdge({x, y}, {x + dist, y + dist});
+                graph.AddEdge({x + dist, y + dist}, {x, y});
+                graph.AddEdge({x + dist, y}, {x, y + dist});
+                graph.AddEdge({x, y + dist}, {x + dist, y});
             }
             stationList.Create({x, y});
         }
@@ -66,15 +44,35 @@ int main()
     TramList trams;
     trams.gen_rand_trams(graph, tram_amount, tram_length, depot);
 
+    TramProblem tramProblem(time_itt, stationList);
+
     // objective function params
-    std::tuple<uint32_t, uint32_t, uint32_t> objective = check_ans(time, stationList, trams);
-    uint32_t transported = std::get<0>(objective);
+    std::tuple<float, uint32_t, float> objective = tramProblem.run(trams);
+    float transported = std::get<2>(objective);
     uint32_t distance = std::get<1>(objective);
-    uint32_t all_passengers = std::get<2>(objective);
 
 
-    std::cout << float(transported) / float(all_passengers) * 100 << " % passengers transported" <<std::endl;
+    std::cout << transported * 100 << " % passengers transported" <<std::endl;
     std::cout << distance << " units traveled"<<std::endl;
+
+
+    std::random_device bees_seed{};
+    AlgorithmParameters algorithmParameters{};
+    algorithmParameters.solutionsNumber  = 20;
+    algorithmParameters.bestCount        = 10;
+    algorithmParameters.eliteCount       =  5;
+    algorithmParameters.bestRecruits     =  5;
+    algorithmParameters.eliteRecruits    = 10;
+    algorithmParameters.neighborhoodSize = 10;
+    algorithmParameters.maxIterations    =100;
+    algorithmParameters.beeLifeTime      = 10;
+
+    ProblemParameters problemParameters(tram_amount, graph, tramProblem, stationList, most_efficient);
+
+
+    Bees bees(algorithmParameters, bees_seed(), depot, problemParameters);
+    Bee best_bee = bees.run();
+    std::cout << best_bee.quality * 100 << " % passengers transported" <<std::endl;
 
     return 0;
 }

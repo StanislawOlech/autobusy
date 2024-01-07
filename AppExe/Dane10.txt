@@ -1,0 +1,48 @@
+# Dane algorytmu
+Liczba autobusów: 3
+Czas symulacji: 6
+Współczynnik straty autobusów: 2
+Liczba iteracji: 100
+Liczba rozwiązań: 20
+Liczba rozwiązań najlepszych: 10
+Liczba rozwiązań elitarnych: 5
+Liczba zatrudnionych pszczół do obszaru najlepszego: 5
+Liczba zatrudnionych pszczół do obszaru elitarnego: 10
+Rozmiar sąsiectwa: 5
+Czas życia rozwiązania: 10
+Adaptacyjny rozmiar: 0
+Funkcja celu: 2
+Rodzaj otoczenia: 0
+
+# Stacje
+0 0
+1 0
+1 1
+1 2
+312 0
+3 0
+3 1
+3 421
+32 421
+32 123
+4 123
+4 12
+3 12
+
+# Połączenia
+0 1 1 1 1 1 1 1 1 1 1 1 1 
+1 0 1 1 1 1 1 1 1 1 1 1 1 
+1 1 0 1 1 1 1 1 1 1 1 1 1 
+1 1 1 0 1 1 1 1 1 1 1 1 1 
+1 1 1 1 0 1 1 1 1 1 1 1 1 
+1 1 1 1 1 0 1 1 1 1 1 1 1 
+1 1 1 1 1 1 0 1 1 1 1 1 1 
+1 1 1 1 1 1 1 0 1 1 1 1 1 
+1 1 1 1 1 1 1 1 0 1 1 1 1 
+1 1 1 1 1 1 1 1 1 0 1 1 1 
+1 1 1 1 1 1 1 1 1 1 0 1 1 
+1 1 1 1 1 1 1 1 1 1 1 0 1 
+1 1 1 1 1 1 1 1 1 1 1 1 0 
+
+# Lista pasażerów
+0=5-3 |

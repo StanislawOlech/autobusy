@@ -11,6 +11,8 @@ set(TEST_SOURCE_FILES
         GraphTest.cpp
         TramTest.cpp
         StationTest.cpp
+        ProblemTest.cpp
+        GuiUtilityTest.cpp
 )
 
 add_executable(unit_tests ${TEST_SOURCE_FILES})

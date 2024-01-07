@@ -8,7 +8,6 @@
 #include <optional>
 #include <random>
 #include <unordered_set>
-#define  seed rd()
 
 
 /**
@@ -42,6 +41,8 @@ public:
 
     [[nodiscard]] uint32_t CountPassengers() const;
 
+    [[nodiscard]] std::vector<Point2D> GetPassengersDestination() const;
+
     [[nodiscard]] bool HasPassengers(Point2D dest) { return passengers_[dest] != 0; }
 
     void DividePassengers(uint32_t divider);
@@ -49,6 +50,10 @@ public:
     void AddPassengers(std::span<Passenger> new_passengers);
 
     friend std::ostream& operator<<(std::ostream &oss, Station station);
+
+    void Clear(){passengers_.clear();};
+
+    void DebugPrint() const;
 
 private:
     Point2D position_;
@@ -73,6 +78,10 @@ struct PassengerTable
 
     void UpdateTime() { ++curr_time; }
 
+    void RestartTime() { curr_time = 0; }
+
+    void DebugPrint() const;
+
 private:
     Table3D table_;
     std::size_t curr_time = 0;
@@ -87,7 +96,7 @@ class StationList
 {
 public:
 
-    explicit StationList(PassengerTable::Table3D passengerTable, uint32_t divider = 2);
+    explicit StationList(const PassengerTable::Table3D &passengerTable, uint32_t divider = 2);
 
     void Create(Point2D position);
 
@@ -97,13 +106,22 @@ public:
 
     void Update();
 
-    uint32_t GenerateRandomPass(uint32_t maxPassengers = 100, uint32_t groups = 10);
+    void Restart();
+
+    void Clear();
+
+    uint32_t GenerateRandomPass(std::mt19937 generator, uint32_t maxPassengers = 100, uint32_t groups = 10);
+
+    uint32_t GetPassengersCount() const { return passenger_count_; }
+
+    void DebugPrint() const;
 
 private:
     std::unordered_map<Point2D, Station> stations_;
 
     PassengerTable passengerTable_;
     uint32_t passenger_divider_;
+    uint32_t passenger_count_;
 };
 
 #endif //AUTOBUS_STATION_HPP

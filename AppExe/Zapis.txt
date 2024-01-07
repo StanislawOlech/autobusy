@@ -1,0 +1,29 @@
+# Dane algorytmu
+Liczba autobusów: 5
+Czas symulacji: 6
+Współczynnik straty autobusów: 2
+Liczba iteracji: 100
+Liczba rozwiązań: 20
+Liczba rozwiązań najlepszych: 10
+Liczba rozwiązań elitarnych: 4
+Liczba zatrudnionych pszczół do obszaru najlepszego: 5
+Liczba zatrudnionych pszczół do obszaru elitarnego: 10
+Rozmiar sąsiectwa: 5
+Czas życia rozwiązania: 10
+Funkcja celu: 2
+Rodzaj otoczenia: 0
+
+# Stacje
+0 0
+1 0
+1 1
+1 2
+
+# Połączenia
+0 1 0 0 
+1 0 1 0 
+0 1 0 1 
+0 0 1 0 
+
+# Lista pasażerów
+0=5-3 |
