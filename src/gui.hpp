@@ -62,7 +62,7 @@ private:
     int autobus_number_ = 1;
     int simulated_time_ = 1;
 
-    char file_name[32] = "Dane.txt";
+    char file_name[32] = "testy/1.txt";
 
     int solutions_number_ = 1;
     int elite_number_ = 1;
