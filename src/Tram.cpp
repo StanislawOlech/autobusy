@@ -482,7 +482,7 @@ void TramList::gen_rand_after(const Graph<Point2D>& graph, int max_change, int t
             return std::find(path.begin(), path.end(), connection[vec_idx[0]]) != path.end();
         });
 
-        if (idx_iter != vec_idx.end())
+        if (idx_iter == vec_idx.end())
             return ;
 
         path.push_back(connection[*idx_iter]);
