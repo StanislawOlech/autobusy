@@ -356,9 +356,17 @@ std::tuple<uint32_t, uint32_t, double> TramList::transfers(StationList& stationL
 }
 
 void TramList::deleteTram(std::size_t position){
+//    std::cout << "Delete start" << std::endl;
+
+    if (trams.size() <= position)
+        return;
+
     auto it = trams.begin();
     std::advance(it, position);
+
+//    std::cout << "Delete erase" << std::endl;
     trams.erase(it);
+//    std::cout << "Delete end" << std::endl;
 }
 
 void TramList::update() {

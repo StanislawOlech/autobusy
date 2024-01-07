@@ -791,6 +791,8 @@ AlgorithmParameters GUI::ExportAlgorithm() const
         .solutionsNumber = solutions_number_,
         .bestCount = best_number_,
         .eliteCount = elite_number_,
+        .bestRecruits= best_size_,
+        .eliteRecruits = elite_size_,
         .neighborhoodSize = neighborhood_size_,
         .maxIterations = max_iter_,
         .beeLifeTime = lifetime_,

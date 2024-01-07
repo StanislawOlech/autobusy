@@ -137,7 +137,7 @@ void Bees::elites_search() {
                 std::fill(vec.begin(), vec.end(), localBee);
             }
         }
-        newBee.age = parameters_.beeLifeTime;
+        newBee.age = parameters_.beeLifeTime + 1;
     }
 
 //    for (int i=0; i != parameters_.eliteCount; i ++) {
@@ -177,7 +177,7 @@ void Bees::best_search() {
         int iter_without_change = 0;
 
         // szukaj lokalnie dopóki czas życia i sąsiectwo nie jest zerowe
-        for (int j = 0; j < parameters_.beeLifeTime || neighborhood_size <= 0; ++j)
+        for (int j = 0; j < parameters_.beeLifeTime && neighborhood_size > 0; ++j)
         {
             for (auto &localBee: vec)
             {
@@ -227,7 +227,7 @@ void Bees::best_search() {
                 std::fill(vec.begin(), vec.end(), localBee);
             }
         }
-        newBee.age = parameters_.beeLifeTime;
+        newBee.age = parameters_.beeLifeTime + 1;
     }
 
 //        for (int j=0; j != parameters_.eliteRecruits; j ++) {
@@ -273,7 +273,7 @@ void Bees::scouts_search() {
 
 
 float Bees::calculateFitness(TramList trams) {
-    objectiveFunCalls++;
+    objectiveFunCalls += 1;
     // Calculate the fitness (quality) of a Trams
     std::tuple<float, uint32_t, float> objective = problemParameters_.tramProblem.run(trams);
 
