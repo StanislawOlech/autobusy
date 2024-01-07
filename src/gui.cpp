@@ -183,6 +183,9 @@ void GUI::DrawResultPlot()
 //    constexpr static ImPlotAxisFlags yflags = ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_RangeFit;
 
 
+    ImPlotStyle &style = ImPlot::GetStyle();
+    style.LineWeight = 2;
+
     if (ImPlot::BeginPlot("Wykres funkcji celu", {-1, -1})) {
         ImPlot::SetupAxes("Numer iteracji","Funkcja celu", xflags, yflags);
 
@@ -195,6 +198,7 @@ void GUI::DrawResultPlot()
             axis_flag = ImPlotCond_None;
         }
 
+//        ImPlot::SetNextLineStyle(IMPLOT_AUTO_COL, 1.5);
         ImPlot::PlotLine("f(x)", y_value_.data(), (int)y_value_.size());
         ImPlot::EndPlot();
     }
@@ -511,6 +515,9 @@ void GUI::DrawArguments()
         ImGui::EndCombo();
     }
 
+    ImGui::PopItemWidth();
+
+    ImGui::PushItemWidth(200);
     // TODO - dodać nowe otoczenia
     preview_text = NeighborhoodToString(neighborhood_);
     if (ImGui::BeginCombo(u8"Otoczenie", preview_text.data()))
