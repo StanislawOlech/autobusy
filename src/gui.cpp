@@ -291,6 +291,8 @@ void GUI::DrawStationList()
                     // FIXME: przesuń połączenia pomiędzy stacjami gdy zostanie usunięta stacja
                     connections_.clear();
 
+                    table3D.clear();
+
                     // Nie Działa
 //                    std::vector<uint8_t> new_connections_;
 //                    new_connections_.reserve(connections_.size());

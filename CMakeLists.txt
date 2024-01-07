@@ -26,4 +26,7 @@ target_link_libraries(autobus PUBLIC autobusLib)
 
 add_executable(autobusGui main_gui.cpp)
 target_link_libraries(autobusGui PUBLIC autobusLibGui -static)
-set_target_properties( autobusGui PROPERTIES RUNTIME_OUTPUT_DIRECTORY ../build)
+set_target_properties( autobusGui PROPERTIES RUNTIME_OUTPUT_DIRECTORY ../AppExe)
+
+# hide console window
+target_link_options(autobusGui PRIVATE -mwindows)
