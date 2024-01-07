@@ -390,6 +390,7 @@ std::string TramList::Print() const
 void TramList::gen_rand_unique(const Graph<Point2D> &graph, int tram_amount, int tram_length, Point2D depot,
                                std::mt19937 &generator)
 {
+    trams.clear();
     for (int i = 0; i != tram_amount; ++i)
     {
         Tram tram;
